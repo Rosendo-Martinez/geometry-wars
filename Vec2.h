@@ -1,3 +1,5 @@
+#pragma once
+
 class Vec2
 {
 public:
@@ -12,7 +14,7 @@ public:
 
     Vec2();
     Vec2(double x, double y);
-    
+
     void   normalize();
     double length   ();
 };

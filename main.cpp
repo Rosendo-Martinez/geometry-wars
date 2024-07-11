@@ -1,5 +1,6 @@
 #include <iostream>
 #include "Vec2.h"
+#include "Components.h"
 
 int main() 
 {
