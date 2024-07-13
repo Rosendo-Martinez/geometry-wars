@@ -7,14 +7,12 @@ class CTransform
 {
 public:
     Vec2   pos   = {0.0, 0.0};
-    Vec2   speed = {0.0, 0.0};
-    Vec2   scale = {0, 0};
+    Vec2   velocity = {0.0, 0.0};
     double angle = 0;
 
-    CTransform(Vec2 p, Vec2 sp, Vec2 sc, double a)
+    CTransform(Vec2 p, Vec2 v, double a)
         : pos(p)
-        , speed(sp)
-        , scale(sc)
+        , velocity(v)
         , angle(a)
     {}
 };
@@ -23,7 +21,6 @@ class CCollision
 {
 public:
     float radius = 0;
-
     CCollision(float r)
         : radius(r) {}
 };
@@ -32,7 +29,6 @@ class CScore
 {
 public:
     int score = 0;
-
     CScore(int s)
         : score(s) {}
 };
@@ -57,7 +53,6 @@ class CLifespan
 public:
     int remaining = 0; // remaining lifespan
     int total = 0; // initial amount of lifespan
-
     CLifespan(int total)
         : remaining(total), total(total) {}
 };
