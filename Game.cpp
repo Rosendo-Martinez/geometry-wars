@@ -237,7 +237,10 @@ void Game::sEnemySpawner()
     //         use (m_currentFrame - m_lastEnemySpawnTime) to determine
     //         how long its has been since the last enemy spawned
 
-    spawnEnemy();
+    if (m_currentFrame - m_lastEnemySpawnTime >= m_enemyConfig.SI) {
+        spawnEnemy();
+        m_lastEnemySpawnTime = m_currentFrame;
+    };
 }
 
 void spawnSmallEnemies(std:: shared_ptr<Entity> entity)
