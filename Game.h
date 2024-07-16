@@ -45,6 +45,4 @@ private:
     void spawnSmallEnemies(std:: shared_ptr<Entity> entity);
     void spawnBullet(std::shared_ptr<Entity> entity, const Vec2 & mousePos);
     void spawnSpecialWeapon(std::shared_ptr<Entity> entity);
-
-    CInput trueInput(const std::shared_ptr<CInput> ci); // cancels out opposing movements 
 };

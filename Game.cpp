@@ -4,71 +4,39 @@
 #include <iostream>
 #include <cmath>
 
+// Helper functions
+
+/*
+    Cancels out opposing movements.
+
+    For example: 
+    If left and right are true then they cancel each other.
+    Both will be set to false. 
+*/
+CInput trueInput(const std::shared_ptr<CInput> ci)
+{
+    CInput trueCi;
+
+    trueCi.up = (ci->up && !ci->down);
+    trueCi.down = (ci->down && !ci->up);
+    trueCi.left = (ci->left && !ci->right);
+    trueCi.right = (ci->right && !ci->left);
+
+    return trueCi;
+}
 
 int randRange(int min, int max)
 {
     return (rand() % (1 + max - min)) + min;
 }
 
+// Public Class Methods
+
 Game::Game(const std::string & config)
 {
     init(config);
 }
 
-void Game::init(const std::string & path)
-{
-    // TODO: read in config file here
-    //      store values in structs
-    // std::ifstream fin(path);
-
-    m_window.create(sf::VideoMode(1280, 720), "GeoWars");
-    m_window.setFramerateLimit(60);
-    m_window.setKeyRepeatEnabled(false);
-
-    spawnPlayer();
-}
-
-
-void Game::spawnEnemy()
-{
-    // TODO: make sure the enemy is spawned properly with the m_enemyConfig variables
-    //      enemy must be spawned completely within the bounds of the window
-
-    // auto e = m_entities.addEntity("enemy");
-    // e->cTransform = std::make_shared<CTransform>(Vec2(100.0, 100.0), Vec2(0.2,0.2), 0.0);
-    // e->cShape = std::make_shared<CShape>(20.f, 3, sf::Color::Magenta, sf::Color::Red, 5.f);
-    auto entity = m_entities.addEntity("enemy");
-
-    
-    float ex = randRange(m_enemyConfig.SR, m_window.getSize().x - m_enemyConfig.SR);
-    float ey = randRange(m_enemyConfig.SR, m_window.getSize().y - m_enemyConfig.SR);
-
-    entity->cTransform = std::make_shared<CTransform>(Vec2(ex,ey), Vec2(2,2), 0.0f);
-
-    entity->cShape = std::make_shared<CShape>(16.0f, 3, sf::Color(0,0,255), sf::Color(255,255,255), 4.0f);
-
-    entity->cInput = std::make_shared<CInput>();
-
-    m_lastEnemySpawnTime = m_currentFrame;
-}
-
-void Game::sCollision()
-{
-    // TODO: imp. all proper collisions between entities
-    //          be sure to use collision radius, not shape radius
-
-    for (auto b : m_entities.getEntities("bullet"))
-    {
-        for (auto e : m_entities.getEntities("enemy"))
-        {
-            // if (Physics::CheckCollision(b, e))
-            // {
-            //     b->destroy();
-            //     e->destroy();
-            // }
-        }
-    }
-}
 
 void Game::run()
 {
@@ -91,28 +59,41 @@ void Game::run()
     }
 }
 
-void Game::setPaused(bool paused)
+
+// Private Class Methods
+
+void Game::init(const std::string & path)
 {
-    // todo
+    // TODO: read in config file here
+    //      store values in structs
+    // std::ifstream fin(path);
+
+    m_window.create(sf::VideoMode(1280, 720), "GeoWars");
+    m_window.setFramerateLimit(60);
+    m_window.setKeyRepeatEnabled(false);
+
+    spawnPlayer();
 }
 
-void Game::spawnPlayer()
+
+void Game::sCollision()
 {
-    // TODO: Finish adding all properties of the player with the correct values from the config
+    // TODO: imp. all proper collisions between entities
+    //          be sure to use collision radius, not shape radius
 
-    auto entity = m_entities.addEntity("player");
-
-    float mx = m_window.getSize().x / 2.0f;
-    float my = m_window.getSize().y / 2.0f;
-
-    entity->cTransform = std::make_shared<CTransform>(Vec2(mx,my), Vec2(3.0f,3.0f), 0.0f);
-
-    entity->cShape = std::make_shared<CShape>(32.0f, 8, sf::Color(10,10,10), sf::Color(255,0,0), 4.0f);
-
-    entity->cInput = std::make_shared<CInput>();
-
-    m_player = entity;
+    for (auto b : m_entities.getEntities("bullet"))
+    {
+        for (auto e : m_entities.getEntities("enemy"))
+        {
+            // if (Physics::CheckCollision(b, e))
+            // {
+            //     b->destroy();
+            //     e->destroy();
+            // }
+        }
+    }
 }
+
 
 void Game::sMovement()
 {
@@ -263,6 +244,24 @@ void Game::sEnemySpawner()
     };
 }
 
+void Game::spawnPlayer()
+{
+    // TODO: Finish adding all properties of the player with the correct values from the config
+
+    auto entity = m_entities.addEntity("player");
+
+    float mx = m_window.getSize().x / 2.0f;
+    float my = m_window.getSize().y / 2.0f;
+
+    entity->cTransform = std::make_shared<CTransform>(Vec2(mx,my), Vec2(3.0f,3.0f), 0.0f);
+
+    entity->cShape = std::make_shared<CShape>(32.0f, 8, sf::Color(10,10,10), sf::Color(255,0,0), 4.0f);
+
+    entity->cInput = std::make_shared<CInput>();
+
+    m_player = entity;
+}
+
 void spawnSmallEnemies(std:: shared_ptr<Entity> entity)
 {
     // TODO: spawn small enemies at the location of the input enemy entity
@@ -282,21 +281,30 @@ void spawnSpecialWeapon(std::shared_ptr<Entity> entity)
 {
 }
 
-/*
-    Cancels out opposing movements.
-
-    For example: 
-    If left and right are true then they cancel each other.
-    Both will be set to false. 
-*/
-CInput Game::trueInput(const std::shared_ptr<CInput> ci)
+void Game::spawnEnemy()
 {
-    CInput trueCi;
+    // TODO: make sure the enemy is spawned properly with the m_enemyConfig variables
+    //      enemy must be spawned completely within the bounds of the window
 
-    trueCi.up = (ci->up && !ci->down);
-    trueCi.down = (ci->down && !ci->up);
-    trueCi.left = (ci->left && !ci->right);
-    trueCi.right = (ci->right && !ci->left);
+    // auto e = m_entities.addEntity("enemy");
+    // e->cTransform = std::make_shared<CTransform>(Vec2(100.0, 100.0), Vec2(0.2,0.2), 0.0);
+    // e->cShape = std::make_shared<CShape>(20.f, 3, sf::Color::Magenta, sf::Color::Red, 5.f);
+    auto entity = m_entities.addEntity("enemy");
 
-    return trueCi;
+    
+    float ex = randRange(m_enemyConfig.SR, m_window.getSize().x - m_enemyConfig.SR);
+    float ey = randRange(m_enemyConfig.SR, m_window.getSize().y - m_enemyConfig.SR);
+
+    entity->cTransform = std::make_shared<CTransform>(Vec2(ex,ey), Vec2(2,2), 0.0f);
+
+    entity->cShape = std::make_shared<CShape>(16.0f, 3, sf::Color(0,0,255), sf::Color(255,255,255), 4.0f);
+
+    entity->cInput = std::make_shared<CInput>();
+
+    m_lastEnemySpawnTime = m_currentFrame;
+}
+
+void Game::setPaused(bool paused)
+{
+    // todo
 }
