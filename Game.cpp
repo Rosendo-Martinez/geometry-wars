@@ -2,6 +2,7 @@
 
 #include <cstdlib>
 #include <iostream>
+#include <cmath>
 
 Game::Game(const std::string & config)
 {
@@ -109,11 +110,34 @@ void Game::sMovement()
 {
     // TODO: imp. all entity movement in this function
 
+    const int trueCount = m_player->cInput->up + m_player->cInput->down + m_player->cInput->left + m_player->cInput->right;
+    
     m_player->cTransform->velocity = {0,0}; // reset player vel. before every frame to zero
 
-    if (m_player->cInput->up)
-    {
-        m_player->cTransform->velocity.y = -3;
+    if (trueCount > 1) {
+        const float sSqrt = std::sqrt(m_playerConfig.S);
+        if (m_player->cInput->up) {
+            m_player->cTransform->velocity.y -= sSqrt;
+        }
+        if (m_player->cInput->down) {
+            m_player->cTransform->velocity.y += sSqrt;
+        }
+        if (m_player->cInput->left) {
+            m_player->cTransform->velocity.x -= sSqrt;
+        }
+        if (m_player->cInput->right) {
+            m_player->cTransform->velocity.x += sSqrt;
+        }
+    } else if (trueCount == 1) {
+        if (m_player->cInput->up) {
+            m_player->cTransform->velocity.y -= m_playerConfig.S;
+        } else if (m_player->cInput->down) {
+            m_player->cTransform->velocity.y += m_playerConfig.S;
+        } else if (m_player->cInput->left) {
+            m_player->cTransform->velocity.x -= m_playerConfig.S;
+        } else if (m_player->cInput->right) {
+            m_player->cTransform->velocity.x += m_playerConfig.S;
+        }
     }
 
     m_player->cTransform->pos.x += m_player->cTransform->velocity.x;
@@ -134,6 +158,7 @@ void Game::sUserInput()
             m_running = false;
         }
 
+        // Key pressed
         if (event.type == sf::Event::KeyPressed)
         {
             switch (event.key.code)
@@ -141,16 +166,35 @@ void Game::sUserInput()
                 case sf::Keyboard::W:
                     m_player->cInput->up = true;
                     break;
+                case sf::Keyboard::A:
+                    m_player->cInput->left = true;
+                    break;
+                case sf::Keyboard::S:
+                    m_player->cInput->down = true;
+                    break;
+                case sf::Keyboard::D:
+                    m_player->cInput->right = true;
+                    break;
                 default: break;
             }
         }
 
+        // Key released
         if (event.type == sf::Event::KeyReleased)
         {
             switch (event.key.code)
             {
                 case sf::Keyboard::W:
                     m_player->cInput->up = false;
+                    break;
+                case sf::Keyboard::A:
+                    m_player->cInput->left = false;
+                    break;
+                case sf::Keyboard::S:
+                    m_player->cInput->down = false;
+                    break;
+                case sf::Keyboard::D:
+                    m_player->cInput->right = false;
                     break;
                 default: break;
             }
