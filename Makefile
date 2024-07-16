@@ -23,4 +23,4 @@ clean:
 	rm -f $(OBJ_FILES) ./bin/$(OUTPUT)
 
 run: $(OUTPUT)
-	cd bin && ./sfmlgame && cd ..
+	cd ./bin && ./sfmlgame

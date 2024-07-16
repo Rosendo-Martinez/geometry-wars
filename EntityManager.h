@@ -13,7 +13,7 @@ class EntityManager
     size_t    m_totalEntities = 0;
 
 public:
-    EntityManager();
+    EntityManager() {}
     void update(); // removes dead entities & adds entities in wait list, should be called at begging of next frame (delayed affect)
     std::shared_ptr<Entity> addEntity(const std::string& tag);
     EntityVec& getEntities();

@@ -14,9 +14,9 @@ public:
     std::shared_ptr<CLifespan> cLifespan;
 
     bool isActive() const;
-    const std::string & tag() const;
+    const std::string & tag() const { return m_tag; }
     const size_t id() const;
-    void destroy();
+    void destroy() { m_active = false; }
 
 private:
     friend class EntityManager;
@@ -24,5 +24,5 @@ private:
     bool        m_active = true;
     size_t      m_id     = 0;
 
-    Entity(const size_t id, const std::string& tag);
+    Entity(const std::string& tag, const size_t id);
 };
