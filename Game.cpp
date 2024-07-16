@@ -117,18 +117,18 @@ void Game::sMovement()
     m_player->cTransform->velocity = {0,0}; // reset player vel. before every frame to zero
 
     if (trueCount == 2) {
-        const float sSqrt = std::sqrt(m_playerConfig.S);
+        const float componentSpeed = std::sqrt(m_playerConfig.S * 2);
         if (playerCI.up) {
-            m_player->cTransform->velocity.y -= sSqrt;
+            m_player->cTransform->velocity.y -= componentSpeed;
         }
         if (playerCI.down) {
-            m_player->cTransform->velocity.y += sSqrt;
+            m_player->cTransform->velocity.y += componentSpeed;
         }
         if (playerCI.left) {
-            m_player->cTransform->velocity.x -= sSqrt;
+            m_player->cTransform->velocity.x -= componentSpeed;
         }
         if (playerCI.right) {
-            m_player->cTransform->velocity.x += sSqrt;
+            m_player->cTransform->velocity.x += componentSpeed;
         }
     } else if (trueCount == 1) {
         if (playerCI.up) {
