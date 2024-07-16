@@ -17,6 +17,7 @@ void Game::init(const std::string & path)
 
     m_window.create(sf::VideoMode(1280, 720), "GeoWars");
     m_window.setFramerateLimit(60);
+    m_window.setKeyRepeatEnabled(false);
 
     spawnPlayer();
 }
@@ -110,32 +111,33 @@ void Game::sMovement()
 {
     // TODO: imp. all entity movement in this function
 
-    const int trueCount = m_player->cInput->up + m_player->cInput->down + m_player->cInput->left + m_player->cInput->right;
-    
+    const CInput playerCI = trueInput(m_player->cInput);
+    const int trueCount = playerCI.up + playerCI.down + playerCI.left + playerCI.right;
+
     m_player->cTransform->velocity = {0,0}; // reset player vel. before every frame to zero
 
-    if (trueCount > 1) {
+    if (trueCount == 2) {
         const float sSqrt = std::sqrt(m_playerConfig.S);
-        if (m_player->cInput->up) {
+        if (playerCI.up) {
             m_player->cTransform->velocity.y -= sSqrt;
         }
-        if (m_player->cInput->down) {
+        if (playerCI.down) {
             m_player->cTransform->velocity.y += sSqrt;
         }
-        if (m_player->cInput->left) {
+        if (playerCI.left) {
             m_player->cTransform->velocity.x -= sSqrt;
         }
-        if (m_player->cInput->right) {
+        if (playerCI.right) {
             m_player->cTransform->velocity.x += sSqrt;
         }
     } else if (trueCount == 1) {
-        if (m_player->cInput->up) {
+        if (playerCI.up) {
             m_player->cTransform->velocity.y -= m_playerConfig.S;
-        } else if (m_player->cInput->down) {
+        } else if (playerCI.down) {
             m_player->cTransform->velocity.y += m_playerConfig.S;
-        } else if (m_player->cInput->left) {
+        } else if (playerCI.left) {
             m_player->cTransform->velocity.x -= m_playerConfig.S;
-        } else if (m_player->cInput->right) {
+        } else if (playerCI.right) {
             m_player->cTransform->velocity.x += m_playerConfig.S;
         }
     }
@@ -248,4 +250,23 @@ void spawnBullet(std::shared_ptr<Entity> entity, const Vec2 & mousePos)
 
 void spawnSpecialWeapon(std::shared_ptr<Entity> entity)
 {
+}
+
+/*
+    Cancels out opposing movements.
+
+    For example: 
+    If left and right are true then they cancel each other.
+    Both will be set to false. 
+*/
+CInput Game::trueInput(const std::shared_ptr<CInput> ci)
+{
+    CInput trueCi;
+
+    trueCi.up = (ci->up && !ci->down);
+    trueCi.down = (ci->down && !ci->up);
+    trueCi.left = (ci->left && !ci->right);
+    trueCi.right = (ci->right && !ci->left);
+
+    return trueCi;
 }
