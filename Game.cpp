@@ -43,7 +43,7 @@ void Game::spawnEnemy()
     float ex = randRange(m_enemyConfig.SR, m_window.getSize().x - m_enemyConfig.SR);
     float ey = randRange(m_enemyConfig.SR, m_window.getSize().y - m_enemyConfig.SR);
 
-    entity->cTransform = std::make_shared<CTransform>(Vec2(ex,ey), Vec2(0.0f,0.0f), 0.0f);
+    entity->cTransform = std::make_shared<CTransform>(Vec2(ex,ey), Vec2(2,2), 0.0f);
 
     entity->cShape = std::make_shared<CShape>(16.0f, 3, sf::Color(0,0,255), sf::Color(255,255,255), 4.0f);
 
@@ -105,7 +105,7 @@ void Game::spawnPlayer()
     float mx = m_window.getSize().x / 2.0f;
     float my = m_window.getSize().y / 2.0f;
 
-    entity->cTransform = std::make_shared<CTransform>(Vec2(mx,my), Vec2(1.0f,1.0f), 0.0f);
+    entity->cTransform = std::make_shared<CTransform>(Vec2(mx,my), Vec2(3.0f,3.0f), 0.0f);
 
     entity->cShape = std::make_shared<CShape>(32.0f, 8, sf::Color(10,10,10), sf::Color(255,0,0), 4.0f);
 
@@ -151,6 +151,26 @@ void Game::sMovement()
 
     m_player->cTransform->pos.x += m_player->cTransform->velocity.x;
     m_player->cTransform->pos.y += m_player->cTransform->velocity.y;
+
+
+    for (auto e : m_entities.getEntities("enemy")) 
+    {
+        const float r = e->cShape->circle.getRadius();
+        Vec2& pos = e->cTransform->pos;
+        Vec2& vel = e->cTransform->velocity;
+
+        if (pos.x - r <= 0 || pos.x + r >= m_window.getSize().x)
+        {
+            vel.x *= -1;
+        }
+        if (pos.y - r <= 0 || pos.y + r >= m_window.getSize().y)
+        {
+            vel.y *= -1;
+        }
+
+        pos.x += vel.x;
+        pos.y += vel.y;
+    }
 }
 
 void Game::sUserInput()
