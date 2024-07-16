@@ -4,6 +4,12 @@
 #include <iostream>
 #include <cmath>
 
+
+int randRange(int min, int max)
+{
+    return (rand() % (1 + max - min)) + min;
+}
+
 Game::Game(const std::string & config)
 {
     init(config);
@@ -33,8 +39,9 @@ void Game::spawnEnemy()
     // e->cShape = std::make_shared<CShape>(20.f, 3, sf::Color::Magenta, sf::Color::Red, 5.f);
     auto entity = m_entities.addEntity("enemy");
 
-    float ex = rand() % m_window.getSize().x;
-    float ey = rand() % m_window.getSize().y;
+    
+    float ex = randRange(m_enemyConfig.SR, m_window.getSize().x - m_enemyConfig.SR);
+    float ey = randRange(m_enemyConfig.SR, m_window.getSize().y - m_enemyConfig.SR);
 
     entity->cTransform = std::make_shared<CTransform>(Vec2(ex,ey), Vec2(0.0f,0.0f), 0.0f);
 
@@ -230,7 +237,7 @@ void Game::sEnemySpawner()
     //         use (m_currentFrame - m_lastEnemySpawnTime) to determine
     //         how long its has been since the last enemy spawned
 
-    // spawnEnemy();
+    spawnEnemy();
 }
 
 void spawnSmallEnemies(std:: shared_ptr<Entity> entity)
