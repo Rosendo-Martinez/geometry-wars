@@ -165,6 +165,16 @@ void Game::sMovement()
         pos.x += vel.x;
         pos.y += vel.y;
     }
+
+    // bullet movement
+    for (auto e : m_entities.getEntities("bullet")) 
+    {
+        Vec2& pos = e->cTransform->pos;
+        Vec2& vel = e->cTransform->velocity;
+
+        pos.x += vel.x;
+        pos.y += vel.y;
+    }
 }
 
 void Game::sUserInput()
