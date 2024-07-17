@@ -264,18 +264,20 @@ void Game::sRender()
 
         if (e->tag() == "bullet")
         {
-            e->cLifespan->remaining--;
-            const float lifespanPercent = ((float) e->cLifespan->remaining / (float) e->cLifespan->total);
-            const int alpha = 255 * lifespanPercent;
-
-            e->cShape->circle.setFillColor(sf::Color(m_bulletConfig.FR, m_bulletConfig.FG, m_bulletConfig.FB, alpha));
-            e->cShape->circle.setOutlineColor(sf::Color(m_bulletConfig.OR, m_bulletConfig.OG, m_bulletConfig.OB, alpha));
-
-
-            if (lifespanPercent == 0)
+            if (e->cLifespan->remaining == 0)
             {
                 e->destroy();
+            } 
+            else 
+            {
+                const float lifespanPercent = ((float) e->cLifespan->remaining / (float) e->cLifespan->total);
+                const int alpha = 255 * lifespanPercent;
+
+                e->cShape->circle.setFillColor(sf::Color(m_bulletConfig.FR, m_bulletConfig.FG, m_bulletConfig.FB, alpha));
+                e->cShape->circle.setOutlineColor(sf::Color(m_bulletConfig.OR, m_bulletConfig.OG, m_bulletConfig.OB, alpha));
             }
+
+            e->cLifespan->remaining--;
         }
 
         m_window.draw(e->cShape->circle);
