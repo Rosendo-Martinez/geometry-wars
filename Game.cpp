@@ -6,25 +6,6 @@
 
 // Helper functions
 
-/*
-    Cancels out opposing movements.
-
-    For example: 
-    If left and right are true then they cancel each other.
-    Both will be set to false. 
-*/
-CInput trueInput(const std::shared_ptr<CInput> ci)
-{
-    CInput trueCi;
-
-    trueCi.up = (ci->up && !ci->down);
-    trueCi.down = (ci->down && !ci->up);
-    trueCi.left = (ci->left && !ci->right);
-    trueCi.right = (ci->right && !ci->left);
-
-    return trueCi;
-}
-
 int randRange(int min, int max)
 {
     return (rand() % (1 + max - min)) + min;
@@ -99,47 +80,79 @@ void Game::sMovement()
 {
     // TODO: imp. all entity movement in this function
 
-    const CInput playerCI = trueInput(m_player->cInput);
-    const int trueCount = playerCI.up + playerCI.down + playerCI.left + playerCI.right;
-
     m_player->cTransform->velocity = {0,0}; // reset player vel. before every frame to zero
+    
+    CInput playerInput;
 
-    if (trueCount == 2) {
+    // cancel directions that are canceling each other out
+    playerInput.up = (m_player->cInput->up && !m_player->cInput->down);
+    playerInput.down = (m_player->cInput->down && !m_player->cInput->up);
+    playerInput.left = (m_player->cInput->left && !m_player->cInput->right);
+    playerInput.right = (m_player->cInput->right && !m_player->cInput->left);
+
+    // prevent player from going out of bounds
+    if (m_player->cTransform->pos.x - m_player->cShape->circle.getRadius() <= 0)
+    {
+        playerInput.left = false;
+    }
+    if (m_player->cTransform->pos.x + m_player->cShape->circle.getRadius() >= m_window.getSize().x)
+    {
+        playerInput.right = false;
+    }
+    if (m_player->cTransform->pos.y - m_player->cShape->circle.getRadius() <= 0)
+    {
+        playerInput.up = false;
+    }
+    if (m_player->cTransform->pos.y + m_player->cShape->circle.getRadius() >= m_window.getSize().y)
+    {
+        playerInput.down = false;
+    }
+
+    const int movementInputCount = playerInput.up + playerInput.down + playerInput.left + playerInput.right;
+
+    // player moving diagonally
+    if (movementInputCount == 2) 
+    {
         const float componentSpeed = std::sqrt(m_playerConfig.S * 2);
-        if (playerCI.up) {
+        if (playerInput.up) {
             m_player->cTransform->velocity.y -= componentSpeed;
         }
-        if (playerCI.down) {
+        if (playerInput.down) {
             m_player->cTransform->velocity.y += componentSpeed;
         }
-        if (playerCI.left) {
+        if (playerInput.left) {
             m_player->cTransform->velocity.x -= componentSpeed;
         }
-        if (playerCI.right) {
+        if (playerInput.right) {
             m_player->cTransform->velocity.x += componentSpeed;
         }
-    } else if (trueCount == 1) {
-        if (playerCI.up) {
+    }
+    // player moving horizontally or vertically
+    else if (movementInputCount == 1) 
+    {
+        if (playerInput.up) {
             m_player->cTransform->velocity.y -= m_playerConfig.S;
-        } else if (playerCI.down) {
+        } else if (playerInput.down) {
             m_player->cTransform->velocity.y += m_playerConfig.S;
-        } else if (playerCI.left) {
+        } else if (playerInput.left) {
             m_player->cTransform->velocity.x -= m_playerConfig.S;
-        } else if (playerCI.right) {
+        } else if (playerInput.right) {
             m_player->cTransform->velocity.x += m_playerConfig.S;
         }
     }
 
-    m_player->cTransform->pos.x += m_player->cTransform->velocity.x;
+    // move the player
+    m_player->cTransform->pos.x += m_player->cTransform->velocity.x; 
     m_player->cTransform->pos.y += m_player->cTransform->velocity.y;
 
-
+    // enemy movement
     for (auto e : m_entities.getEntities("enemy")) 
     {
         const float r = e->cShape->circle.getRadius();
         Vec2& pos = e->cTransform->pos;
         Vec2& vel = e->cTransform->velocity;
 
+        // check if enemy is touching window walls
         if (pos.x - r <= 0 || pos.x + r >= m_window.getSize().x)
         {
             vel.x *= -1;
