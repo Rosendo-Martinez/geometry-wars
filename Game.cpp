@@ -24,6 +24,7 @@ void Game::run()
     while (m_running)
     {
         m_entities.update();
+        // std::cout << "Entities Count: " << m_entities.getEntities().size() << " Bullets Count: " << m_entities.getEntities("bullet").size() << std::endl;
 
         if (!m_paused)
         {
@@ -35,6 +36,7 @@ void Game::run()
         sCollision();
         sUserInput();
         sRender();
+        sLifespan();
 
         m_currentFrame++;
     }
@@ -250,6 +252,14 @@ void Game::sUserInput()
 
 void Game::sLifespan()
 {
+    for (auto b : m_entities.getEntities("bullet"))
+    {
+        if (b->cLifespan->remaining > 0) {
+            b->cLifespan->remaining--;
+        } else {
+            b->destroy();
+        }
+    }
 }
 
 void Game::sRender()
@@ -264,20 +274,11 @@ void Game::sRender()
 
         if (e->tag() == "bullet")
         {
-            if (e->cLifespan->remaining == 0)
-            {
-                e->destroy();
-            } 
-            else 
-            {
-                const float lifespanPercent = ((float) e->cLifespan->remaining / (float) e->cLifespan->total);
-                const int alpha = 255 * lifespanPercent;
+            const float lifespanPercent = ((float) e->cLifespan->remaining / (float) e->cLifespan->total);
+            const int alpha = 255 * lifespanPercent;
 
-                e->cShape->circle.setFillColor(sf::Color(m_bulletConfig.FR, m_bulletConfig.FG, m_bulletConfig.FB, alpha));
-                e->cShape->circle.setOutlineColor(sf::Color(m_bulletConfig.OR, m_bulletConfig.OG, m_bulletConfig.OB, alpha));
-            }
-
-            e->cLifespan->remaining--;
+            e->cShape->circle.setFillColor(sf::Color(m_bulletConfig.FR, m_bulletConfig.FG, m_bulletConfig.FB, alpha));
+            e->cShape->circle.setOutlineColor(sf::Color(m_bulletConfig.OR, m_bulletConfig.OG, m_bulletConfig.OB, alpha));
         }
 
         m_window.draw(e->cShape->circle);
