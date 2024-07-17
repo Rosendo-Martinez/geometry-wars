@@ -222,6 +222,19 @@ void Game::sUserInput()
                 default: break;
             }
         }
+
+        if (event.type == sf::Event::MouseButtonPressed) 
+        {
+            if (event.mouseButton.button == sf::Mouse::Left)
+            {
+                // TODO: add cool down
+                spawnBullet(m_player, Vec2(event.mouseButton.x, event.mouseButton.y));
+            }
+            if (event.mouseButton.button == sf::Mouse::Right)
+            {
+                // special weapon
+            }
+        }
     }
 }
 
@@ -283,11 +296,21 @@ void spawnSmallEnemies(std:: shared_ptr<Entity> entity)
     // - small enemies are worth double points of the original enemy
 }
 
-void spawnBullet(std::shared_ptr<Entity> entity, const Vec2 & mousePos)
+void Game::spawnBullet(std::shared_ptr<Entity> entity, const Vec2 & mousePos)
 {
-    // TODO: imp. spawning of a bullet which travels toward target
-    //      - bullet speed is given as a scalar speed
-    //      - you must set the velocity by using formula in notes
+    auto bullet = m_entities.addEntity("bullet");
+
+    Vec2 vel = mousePos - entity->cTransform->pos;
+    vel.normalize();
+    vel *= m_bulletConfig.S;
+
+    bullet->cTransform = std::make_shared<CTransform>(entity->cTransform->pos, vel, 0);
+
+    bullet->cCollision = std::make_shared<CCollision>(m_bulletConfig.CR);
+
+    bullet->cShape = std::make_shared<CShape>(m_bulletConfig.SR, m_bulletConfig.V, sf::Color(m_bulletConfig.FR, m_bulletConfig.FG, m_bulletConfig.FB, 255), sf::Color(m_bulletConfig.OR, m_bulletConfig.OG, m_bulletConfig.OB, 255), m_bulletConfig.OT);
+
+    bullet->cLifespan = std::make_shared<CLifespan>(m_bulletConfig.L);
 }
 
 void spawnSpecialWeapon(std::shared_ptr<Entity> entity)
