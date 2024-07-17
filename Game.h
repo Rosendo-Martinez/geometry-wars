@@ -2,9 +2,11 @@
 #include "EntityManager.h"
 #include "Entity.h"
 
-struct PlayerConfig { int SR, CR, FR, FG, FB, OR, OG, OB, OT, V; float S = 3; }; // default values are temporary, actual values read from config file
-struct EnemyConfig { int SR = 16, CR, OR, OG, OB, OT, VMIN, VMAX, L, SI = 60 * 5; float SMIN, SMAX; };
-struct BulletConfig { int SR, CR, FR, FG, FB, OR, OG, OB, OT, V, L; float S; };
+
+// Default values are temporary, will read in actual values from file later
+struct PlayerConfig { int SR = 32, CR = 32, FR = 5, FG = 5, FB = 5, OR = 255, OG = 0, OB = 0, OT = 4, V = 8; float S = 5; };
+struct EnemyConfig { int SR = 32, CR = 32, OR = 255, OG = 255, OB = 255, OT = 2, VMIN = 3, VMAX = 8, L = 90, SI = 60; float SMIN = 3, SMAX = 3; };
+struct BulletConfig { int SR = 10, CR = 10, FR = 255, FG = 255, FB = 255, OR = 255, OG = 255, OB = 255, OT = 2, V = 20, L = 90; float S = 20; };
 
 
 class Game
