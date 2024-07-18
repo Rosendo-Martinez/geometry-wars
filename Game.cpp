@@ -334,12 +334,28 @@ void Game::spawnPlayer()
     m_player = entity;
 }
 
-void spawnSmallEnemies(std:: shared_ptr<Entity> entity)
+void Game::spawnSmallEnemies(std:: shared_ptr<Entity> entity)
 {
-    // TODO: spawn small enemies at the location of the input enemy entity
-    // - spawn a number of small enemies equal to the vertices of the original enemy
-    // - small enemy same color but half size of enemy entity
     // - small enemies are worth double points of the original enemy
+
+    const int n = entity->cShape->circle.getPointCount();
+    const float speed = entity->cTransform->velocity.length();
+    for (int i = 0; i < n; i++) 
+    {
+        const float angle = 360/n * (i) + entity->cTransform->angle;
+        Vec2 vel;
+        vel.polar(angle, speed);
+
+        auto se = m_entities.addEntity("small enemy");
+
+        se->cTransform = std::make_shared<CTransform>(entity->cTransform->pos, vel, 0);
+
+        se->cCollision = std::make_shared<CCollision>(entity->cCollision->radius/2);
+
+        se->cShape = std::make_shared<CShape>(entity->cShape->circle.getRadius()/2, entity->cShape->circle.getPointCount(), entity->cShape->circle.getFillColor(), entity->cShape->circle.getOutlineColor(), entity->cShape->circle.getOutlineThickness()/2);
+
+        se->cLifespan = std::make_shared<CLifespan>(m_enemyConfig.L);
+    }
 }
 
 void Game::spawnBullet(std::shared_ptr<Entity> entity, const Vec2 & mousePos)
