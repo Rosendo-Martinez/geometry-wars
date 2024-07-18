@@ -24,7 +24,7 @@ void Game::run()
     while (m_running)
     {
         m_entities.update();
-        // std::cout << "Entities Count: " << m_entities.getEntities().size() << " Bullets Count: " << m_entities.getEntities("bullet").size() << std::endl;
+        // std::cout << "Entities Count: " << m_entities.getEntities().size() << " Bullets Count: " << m_entities.getEntities("bullet").size() << " Enemies Count: " << m_entities.getEntities("enemy").size() << std::endl;
 
         if (!m_paused)
         {
@@ -68,11 +68,13 @@ void Game::sCollision()
     {
         for (auto e : m_entities.getEntities("enemy"))
         {
-            // if (Physics::CheckCollision(b, e))
-            // {
-            //     b->destroy();
-            //     e->destroy();
-            // }
+            const bool isCollision = b->cTransform->pos.distSqr(e->cTransform->pos) < (b->cCollision->radius + e->cCollision->radius) * (b->cCollision->radius + e->cCollision->radius);
+            if (isCollision)
+            {
+                b->destroy();
+                e->destroy();
+                break;
+            }
         }
     }
 }
@@ -365,6 +367,8 @@ void Game::spawnEnemy()
     entity->cShape = std::make_shared<CShape>(16.0f, 3, sf::Color(0,0,255), sf::Color(255,255,255), 4.0f);
 
     entity->cInput = std::make_shared<CInput>();
+
+    entity->cCollision = std::make_shared<CCollision>(m_enemyConfig.CR);
 
     m_lastEnemySpawnTime = m_currentFrame;
 }
