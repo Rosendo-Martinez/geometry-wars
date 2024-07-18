@@ -27,4 +27,5 @@ public:
     float  length    () const;
     float  dist      (const Vec2& v) const;
     float  distSqr   (const Vec2& v) const;
+    void   polar     (const float a, const float r);
 };

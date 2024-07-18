@@ -91,3 +91,11 @@ float Vec2::distSqr(const Vec2& v) const
 {
     return (x - v.x) * (x - v.x) + (y - v.y) * (y - v.y);
 }
+
+void Vec2::polar(const float a, const float r)
+{
+    const float pi = 3.1415f;
+    const float rad = a * pi/180;
+    x = r * std::cos(rad);
+    y = r * std::sin(rad);
+}
