@@ -18,12 +18,14 @@ void EntityManager::update()
     }
     m_toAdd.clear();
 
-    // remove destroyed bullets
-    const auto newEndEntities = std::remove_if(m_entities.begin(), m_entities.end(), [](const std::shared_ptr<Entity> e){ return !e->isActive(); });
-    m_entities.erase(newEndEntities, m_entities.end());
-    const auto newEndBullets = std::remove_if(m_entityMap["bullet"].begin(), m_entityMap["bullet"].end(), [](const std::shared_ptr<Entity> e){ return !e->isActive(); });
-    m_entityMap["bullet"].erase(newEndBullets, m_entityMap["bullet"].end());
-
+    // remove 'destroyed' entities
+    EntityVec::iterator it = std::remove_if(m_entities.begin(), m_entities.end(), [](const std::shared_ptr<Entity> e){ return !e->isActive(); });
+    m_entities.erase(it, m_entities.end());
+    for (auto& p : m_entityMap)
+    {
+        EntityVec::iterator it = std::remove_if(p.second.begin(), p.second.end(), [](const std::shared_ptr<Entity> e){ return !e->isActive(); });
+        p.second.erase(it, p.second.end());
+    }
 }
 
 EntityVec& EntityManager::getEntities()
