@@ -69,6 +69,11 @@ void Game::sCollision()
             const bool isCollision = b->cTransform->pos.distSqr(e->cTransform->pos) < (b->cCollision->radius + e->cCollision->radius) * (b->cCollision->radius + e->cCollision->radius);
             if (isCollision)
             {
+                // if is not small enemy
+                if (e->cLifespan == nullptr)
+                {
+                    spawnSmallEnemies(e);
+                }
                 b->destroy();
                 e->destroy();
                 break;
@@ -267,12 +272,26 @@ void Game::sUserInput()
 
 void Game::sLifespan()
 {
+    // bullets
     for (auto b : m_entities.getEntities("bullet"))
     {
         if (b->cLifespan->remaining > 0) {
             b->cLifespan->remaining--;
         } else {
             b->destroy();
+        }
+    }
+
+    // small enemies
+    for (auto e : m_entities.getEntities("enemy"))
+    {
+        if (e->cLifespan != nullptr)
+        {
+            if (e->cLifespan->remaining > 0) {
+                e->cLifespan->remaining--;
+            } else {
+                e->destroy();
+            }
         }
     }
 }
@@ -287,13 +306,18 @@ void Game::sRender()
         e->cTransform->angle += 1.0f;
         e->cShape->circle.setRotation(e->cTransform->angle);
 
-        if (e->tag() == "bullet")
+        if (e->cLifespan != nullptr)
         {
             const float lifespanPercent = ((float) e->cLifespan->remaining / (float) e->cLifespan->total);
             const int alpha = 255 * lifespanPercent;
 
-            e->cShape->circle.setFillColor(sf::Color(m_bulletConfig.FR, m_bulletConfig.FG, m_bulletConfig.FB, alpha));
-            e->cShape->circle.setOutlineColor(sf::Color(m_bulletConfig.OR, m_bulletConfig.OG, m_bulletConfig.OB, alpha));
+            sf::Color fill = sf::Color(e->cShape->circle.getFillColor());
+            sf::Color outline = sf::Color(e->cShape->circle.getOutlineColor());
+            fill.a = alpha;
+            outline.a = alpha;
+
+            e->cShape->circle.setFillColor(fill);
+            e->cShape->circle.setOutlineColor(outline);
         }
 
         m_window.draw(e->cShape->circle);
@@ -346,7 +370,7 @@ void Game::spawnSmallEnemies(std:: shared_ptr<Entity> entity)
         Vec2 vel;
         vel.polar(angle, speed);
 
-        auto se = m_entities.addEntity("small enemy");
+        auto se = m_entities.addEntity("enemy");
 
         se->cTransform = std::make_shared<CTransform>(entity->cTransform->pos, vel, 0);
 
