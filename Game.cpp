@@ -374,12 +374,16 @@ void Game::spawnEnemy()
     auto entity = m_entities.addEntity("enemy");
 
     
-    float ex = randRange(m_enemyConfig.SR, m_window.getSize().x - m_enemyConfig.SR);
-    float ey = randRange(m_enemyConfig.SR, m_window.getSize().y - m_enemyConfig.SR);
+    const float ex = randRange(m_enemyConfig.SR, m_window.getSize().x - m_enemyConfig.SR);
+    const float ey = randRange(m_enemyConfig.SR, m_window.getSize().y - m_enemyConfig.SR);
+    const float componentSpeed = std::sqrt(randRange(m_enemyConfig.SMIN, m_enemyConfig.SMAX) * 2);
+    const int velXSign = std::rand() % 2 == 0 ? 1 : -1;
+    const int velYSign = std::rand() % 2 == 0 ? 1 : -1;
+    const int shapePoints = randRange(m_enemyConfig.VMIN, m_enemyConfig.VMAX);
 
-    entity->cTransform = std::make_shared<CTransform>(Vec2(ex,ey), Vec2(2,2), 0.0f);
+    entity->cTransform = std::make_shared<CTransform>(Vec2(ex,ey), Vec2(componentSpeed * velXSign, componentSpeed * velYSign), 0.0f);
 
-    entity->cShape = std::make_shared<CShape>(16.0f, 3, sf::Color(0,0,255), sf::Color(255,255,255), 4.0f);
+    entity->cShape = std::make_shared<CShape>(m_enemyConfig.SR, shapePoints, sf::Color(randRange(0,255),randRange(0,255),randRange(0,255)), sf::Color(m_enemyConfig.OR,m_enemyConfig.OG,m_enemyConfig.OB), m_enemyConfig.OT);
 
     entity->cInput = std::make_shared<CInput>();
 
