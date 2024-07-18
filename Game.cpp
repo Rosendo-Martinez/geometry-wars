@@ -61,9 +61,7 @@ void Game::init(const std::string & path)
 
 void Game::sCollision()
 {
-    // TODO: imp. all proper collisions between entities
-    //          be sure to use collision radius, not shape radius
-
+    // bullet-enemy collision
     for (auto b : m_entities.getEntities("bullet"))
     {
         for (auto e : m_entities.getEntities("enemy"))
@@ -75,6 +73,21 @@ void Game::sCollision()
                 e->destroy();
                 break;
             }
+        }
+    }
+
+    // player-enemy collision
+    for (auto e : m_entities.getEntities("enemy"))
+    {
+        const bool isCollision = m_player->cTransform->pos.distSqr(e->cTransform->pos) < (m_player->cCollision->radius + e->cCollision->radius) * (m_player->cCollision->radius + e->cCollision->radius);
+        if (isCollision)
+        {
+            float mx = m_window.getSize().x / 2.0f;
+            float my = m_window.getSize().y / 2.0f;
+
+            m_player->cTransform->pos.x = mx;
+            m_player->cTransform->pos.y = my;
+            break;
         }
     }
 }
@@ -315,6 +328,8 @@ void Game::spawnPlayer()
     entity->cShape = std::make_shared<CShape>(32.0f, 8, sf::Color(10,10,10), sf::Color(255,0,0), 4.0f);
 
     entity->cInput = std::make_shared<CInput>();
+
+    entity->cCollision = std::make_shared<CCollision>(m_playerConfig.CR);
 
     m_player = entity;
 }
