@@ -25,7 +25,7 @@ void Game::run()
     {
         m_entities.update();
         // std::cout << "Entities Count: " << m_entities.getEntities().size() << " Bullets Count: " << m_entities.getEntities("bullet").size() << " Enemies Count: " << m_entities.getEntities("enemy").size() << std::endl;
-
+        // std::cout << m_player->cScore->score << std::endl;
         if (!m_paused)
         {
             // ?
@@ -36,7 +36,7 @@ void Game::run()
         sCollision();
         sUserInput();
         sRender();
-        sLifespan(); // must be last system call
+        sLifespan(); // must be last system call (in order for nuke to work)
 
         m_currentFrame++;
     }
@@ -74,6 +74,7 @@ void Game::sCollision()
                 {
                     spawnSmallEnemies(e);
                 }
+                m_player->cScore->score += e->cScore->score;
                 b->destroy();
                 e->destroy();
                 break;
@@ -92,6 +93,7 @@ void Game::sCollision()
 
             m_player->cTransform->pos.x = mx;
             m_player->cTransform->pos.y = my;
+            m_player->cScore->score = 0;
             break;
         }
     }
@@ -110,6 +112,7 @@ void Game::sCollision()
 
                 if (isInExplosion || (isInBlast && e->cLifespan != nullptr))
                 {
+                    m_player->cScore->score += e->cScore->score;
                     e->destroy();
                 } else if (isInBlast)
                 {
@@ -120,6 +123,7 @@ void Game::sCollision()
 
                     e->cLifespan = std::make_shared<CLifespan>(m_nukeConfig.REL);
                     e->cTransform->velocity = vel;
+                    e->cScore->score = m_enemyConfig.SSE;
                 }
             }
         }
@@ -397,6 +401,8 @@ void Game::spawnPlayer()
 
     entity->cCollision = std::make_shared<CCollision>(m_playerConfig.CR);
 
+    entity->cScore = std::make_shared<CScore>(0);
+
     m_player = entity;
 }
 
@@ -421,6 +427,8 @@ void Game::spawnSmallEnemies(std:: shared_ptr<Entity> entity)
         se->cShape = std::make_shared<CShape>(entity->cShape->circle.getRadius()/2, entity->cShape->circle.getPointCount(), entity->cShape->circle.getFillColor(), entity->cShape->circle.getOutlineColor(), entity->cShape->circle.getOutlineThickness()/2);
 
         se->cLifespan = std::make_shared<CLifespan>(m_enemyConfig.L);
+
+        se->cScore = std::make_shared<CScore>(m_enemyConfig.SSE);
     }
 }
 
@@ -479,6 +487,8 @@ void Game::spawnEnemy()
     entity->cInput = std::make_shared<CInput>();
 
     entity->cCollision = std::make_shared<CCollision>(m_enemyConfig.CR);
+
+    entity->cScore = std::make_shared<CScore>(m_enemyConfig.SNE);
 
     m_lastEnemySpawnTime = m_currentFrame;
 }
