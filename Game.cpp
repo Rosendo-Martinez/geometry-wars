@@ -384,6 +384,20 @@ void Game::sRender()
     score.setStyle(sf::Text::Bold);
     m_window.draw(score);
 
+    sf::CircleShape nukeCoolDown;
+    int alpha = m_currentFrame - m_lastNukeTime >= m_nukeConfig.CDI ? 255 : 255 * 0.40;
+    sf::Color fill = sf::Color(m_nukeConfig.FR, m_nukeConfig.FG, m_nukeConfig.FB, alpha);
+    sf::Color outline = sf::Color(m_nukeConfig.OR, m_nukeConfig.OG, m_nukeConfig.OB, alpha);
+    float er = 10;
+    float br = er * m_nukeConfig.BR / m_nukeConfig.ER;
+    nukeCoolDown.setFillColor(fill);
+    nukeCoolDown.setOutlineColor(outline);
+    nukeCoolDown.setRadius(er);
+    nukeCoolDown.setOutlineThickness(br - er);
+    nukeCoolDown.setPointCount(m_nukeConfig.V);
+    nukeCoolDown.setPosition(15,50);
+    m_window.draw(nukeCoolDown);
+
     m_window.display();
 }
 
