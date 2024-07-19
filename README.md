@@ -11,8 +11,7 @@ Tech used:
 
 ## Game Play
 
-![Gif](out.gif)
-(Note, GIF format makes game look like frame rate is terrible.)
+https://github.com/user-attachments/assets/eca33812-d8bf-440d-8651-010ef0f3127e
 
 ## Compiling & Running
 
