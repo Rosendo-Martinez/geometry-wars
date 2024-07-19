@@ -3,6 +3,7 @@
 #include <cstdlib>
 #include <iostream>
 #include <cmath>
+#include <sstream>
 
 // Helper functions
 
@@ -54,6 +55,10 @@ void Game::init(const std::string & path)
     m_window.create(sf::VideoMode(1280, 720), "GeoWars");
     m_window.setFramerateLimit(60);
     m_window.setKeyRepeatEnabled(false);
+
+    if (!m_font.loadFromFile("../sofachromergit.otf")) {
+        std::cout << "Error with loading font.\n";
+    }
 
     spawnPlayer();
 }
@@ -368,6 +373,16 @@ void Game::sRender()
 
         m_window.draw(e->cShape->circle);
     }
+
+    std::ostringstream strs;
+    strs << "Score: " << m_player->cScore->score;
+    sf::Text score;
+    score.setFont(m_font);
+    score.setString(strs.str());
+    score.setCharacterSize(30);
+    score.setColor(sf::Color::Cyan);
+    score.setStyle(sf::Text::Bold);
+    m_window.draw(score);
 
     m_window.display();
 }
