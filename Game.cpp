@@ -36,7 +36,7 @@ void Game::run()
         sCollision();
         sUserInput();
         sRender();
-        sLifespan();
+        sLifespan(); // must be last system call
 
         m_currentFrame++;
     }
@@ -93,6 +93,35 @@ void Game::sCollision()
             m_player->cTransform->pos.x = mx;
             m_player->cTransform->pos.y = my;
             break;
+        }
+    }
+
+    for (auto n : m_entities.getEntities("nuke"))
+    {
+        // nuke effect only lasts first frame of being alive
+        if (n->cLifespan->remaining == n->cLifespan->total)
+        {
+            for (auto e : m_entities.getEntities("enemy"))
+            {
+                // explosion is big red ball of nuke
+                // blast is shockwave
+                bool isInExplosion = e->cTransform->pos.distSqr(n->cTransform->pos) < m_nukeConfig.ER * m_nukeConfig.ER;
+                bool isInBlast = e->cTransform->pos.distSqr(n->cTransform->pos) < m_nukeConfig.BR * m_nukeConfig.BR;
+
+                if (isInExplosion || (isInBlast && e->cLifespan != nullptr))
+                {
+                    e->destroy();
+                } else if (isInBlast)
+                {
+                    float s = e->cTransform->velocity.length() * m_nukeConfig.BVM;
+                    Vec2 vel = e->cTransform->pos - n->cTransform->pos;
+                    vel.normalize();
+                    vel *= s;
+
+                    e->cLifespan = std::make_shared<CLifespan>(m_nukeConfig.REL);
+                    e->cTransform->velocity = vel;
+                }
+            }
         }
     }
 }
@@ -264,7 +293,10 @@ void Game::sUserInput()
             }
             if (event.mouseButton.button == sf::Mouse::Right)
             {
-                // special weapon
+                if (m_currentFrame - m_lastNukeTime >= m_nukeConfig.CDI) {
+                    spawnSpecialWeapon(m_player);
+                    m_lastNukeTime = m_currentFrame;
+                }
             }
         }
     }
@@ -292,6 +324,16 @@ void Game::sLifespan()
             } else {
                 e->destroy();
             }
+        }
+    }
+
+    // nukes
+    for (auto n : m_entities.getEntities("nuke"))
+    {
+        if (n->cLifespan->remaining > 0) {
+            n->cLifespan->remaining--;
+        } else {
+            n->destroy();
         }
     }
 }
@@ -399,8 +441,17 @@ void Game::spawnBullet(std::shared_ptr<Entity> entity, const Vec2 & mousePos)
     bullet->cLifespan = std::make_shared<CLifespan>(m_bulletConfig.L);
 }
 
-void spawnSpecialWeapon(std::shared_ptr<Entity> entity)
+void Game::spawnSpecialWeapon(std::shared_ptr<Entity> entity)
 {
+    auto nuke = m_entities.addEntity("nuke");
+    sf::Color fill = sf::Color(m_nukeConfig.FR, m_nukeConfig.FG, m_nukeConfig.FB);
+    sf::Color outline = sf::Color(m_nukeConfig.OR, m_nukeConfig.OG, m_nukeConfig.OB);
+
+    nuke->cTransform = std::make_shared<CTransform>(entity->cTransform->pos, Vec2(0,0), 0);
+
+    nuke->cShape = std::make_shared<CShape>(m_nukeConfig.ER, m_nukeConfig.V, fill, outline, m_nukeConfig.BR - m_nukeConfig.ER);
+
+    nuke->cLifespan = std::make_shared<CLifespan>(m_nukeConfig.L);
 }
 
 void Game::spawnEnemy()
