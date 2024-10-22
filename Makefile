@@ -1,26 +1,55 @@
-# To build run: make
+# To build run: make build
 # To delete all binaries run: make clean
-# To build & run progam run: make run
+# To build & run program run: make run
 
 CXX := g++
-OUTPUT := sfmlgame
+CXXFLAGS := -O3 -std=c++17
+LDFLAGS := -O3 -lsfml-graphics -lsfml-window -lsfml-system -lsfml-audio
 
-CXX_FLAGS := -o3 -std=c++17
-LDFLAGS := -o3 -lsfml-graphics -lsfml-window -lsfml-system -lsfml-audio
+# Commands
 
-SRC_FILES := $(wildcard ./*.cpp) # find all .cpp files
-OBJ_FILES := $(SRC_FILES:.cpp=.o) # for all SRC_FILES replace .cpp with .o
+build : ./bin/Game.exe
 
-all:$(OUTPUT)
+clean :
+	rm -f ./bin/*.o ./bin/Game.exe
 
-$(OUTPUT): $(OBJ_FILES)
-	$(CXX) $(OBJ_FILES) $(LDFLAGS) -o ./bin/$@
+run : build
+	./bin/Game.exe
 
-$(OBJ_FILES) : %.o : %.cpp
-	$(CXX) $(CXX_FLAGS) -c $^ -o $@
+# Executable
 
-clean:
-	rm -f $(OBJ_FILES) ./bin/$(OUTPUT)
+./bin/Game.exe : ./bin/main.o ./bin/Entity.o ./bin/EntityManager.o ./bin/Game.o ./bin/Vec2.o
+	$(CXX) $(CXXFLAGS) -o ./bin/Game.exe ./bin/main.o ./bin/Entity.o ./bin/EntityManager.o ./bin/Game.o ./bin/Vec2.o $(LDFLAGS)
 
-run: $(OUTPUT)
-	cd ./bin && ./sfmlgame
+# Object files (compile from ./src to ./bin)
+
+./bin/main.o : ./src/main.cpp
+	$(CXX) $(CXXFLAGS) -c ./src/main.cpp -o ./bin/main.o
+
+./bin/Entity.o : ./src/Entity.cpp
+	$(CXX) $(CXXFLAGS) -c ./src/Entity.cpp -o ./bin/Entity.o
+
+./bin/EntityManager.o : ./src/EntityManager.cpp
+	$(CXX) $(CXXFLAGS) -c ./src/EntityManager.cpp -o ./bin/EntityManager.o
+
+./bin/Game.o : ./src/Game.cpp
+	$(CXX) $(CXXFLAGS) -c ./src/Game.cpp -o ./bin/Game.o
+
+./bin/Vec2.o : ./src/Vec2.cpp
+	$(CXX) $(CXXFLAGS) -c ./src/Vec2.cpp -o ./bin/Vec2.o
+
+# .cpp files dependencies
+
+./src/main.cpp : ./src/Game.h
+./src/Entity.cpp : ./src/Entity.h
+./src/EntityManager.cpp : ./src/EntityManager.h
+./src/Game.cpp : ./src/Game.h
+./src/Vec2.cpp : ./src/Vec2.h
+
+# Headers dependencies
+
+./src/Entity.h : ./src/Components.h
+./src/EntityManager.h : ./src/Entity.h
+./src/Game.h : ./src/Entity.h ./src/EntityManager.h
+./src/Components.h : ./src/Vec2.h
+./src/Vec2.h :

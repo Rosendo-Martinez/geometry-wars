@@ -56,7 +56,7 @@ void Game::init(const std::string & path)
     m_window.setFramerateLimit(60);
     m_window.setKeyRepeatEnabled(false);
 
-    if (!m_font.loadFromFile("../sofachromergit.otf")) {
+    if (!m_font.loadFromFile("/home/rose/Projects/geometry-wars/sofachromergit.otf")) {
         std::cout << "Error with loading font.\n";
     }
 
