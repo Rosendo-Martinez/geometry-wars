@@ -20,6 +20,7 @@ public:
     void operator *= (const float val);
     void operator /= (const float val);
 
+
     Vec2();
     Vec2(float x, float y);
 

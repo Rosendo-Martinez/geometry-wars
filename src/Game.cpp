@@ -152,6 +152,12 @@ void Game::sCollision()
 
             if (isCollision)
             {
+                Vec2 newDirection = e->cTransform->pos - eOther->cTransform->pos;
+                newDirection.normalize();
+
+                e->cTransform->velocity = newDirection * e->cTransform->velocity.length();
+                eOther->cTransform->velocity = newDirection * eOther->cTransform->velocity.length();
+
                 // e is to the left
                 if (e->cTransform->pos.x < eOther->cTransform->pos.x)
                 {
@@ -178,18 +184,12 @@ void Game::sCollision()
                     e->cTransform->velocity.y = e->cTransform->velocity.y > 0 ? e->cTransform->velocity.y : e->cTransform->velocity.y * -1;
                 }
 
-                break;
+                float d = (e->cCollision->radius + eOther->cCollision->radius - e->cTransform->pos.dist(eOther->cTransform->pos))/2; 
+                e->cTransform->pos += e->cTransform->velocity * (d/e->cTransform->velocity.length());
+                eOther->cTransform->pos += eOther->cTransform->velocity * (d/eOther->cTransform->velocity.length());
             }
         }
-    }
-        // for each otherE
-            // if the two e's are colliding
-                // the e's will go in oppisote directions
-                    // teh one to the left will go to the left, the other to the right
-                    // the one on top will move up, the other down
-                    // break (just do cd for 1 col)
-    
-            
+    }       
 }
 
 
