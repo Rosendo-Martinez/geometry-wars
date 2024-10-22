@@ -476,15 +476,19 @@ void Game::spawnSmallEnemies(std:: shared_ptr<Entity> entity)
 
     const int n = entity->cShape->circle.getPointCount();
     const float speed = entity->cTransform->velocity.length();
+    const float polarRadius = entity->cShape->circle.getPointCount() <= 4 ? entity->cCollision->radius * .70 :  entity->cCollision->radius * (.80 + .1 * (entity->cShape->circle.getPointCount() - 4));
     for (int i = 0; i < n; i++) 
     {
         const float angle = 360/n * (i) + entity->cTransform->angle;
         Vec2 vel;
+        Vec2 pos;
         vel.polar(angle, speed);
+        pos.polar(angle, polarRadius);
+        pos += entity->cTransform->pos;
 
         auto se = m_entities.addEntity("enemy");
 
-        se->cTransform = std::make_shared<CTransform>(entity->cTransform->pos, vel, 0);
+        se->cTransform = std::make_shared<CTransform>(pos, vel, 0);
 
         se->cCollision = std::make_shared<CCollision>(entity->cCollision->radius/2);
 
