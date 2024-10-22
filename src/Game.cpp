@@ -30,16 +30,15 @@ void Game::run()
         if (!m_paused)
         {
             // ?
-        }
-
         sEnemySpawner();
         sMovement();
         sCollision();
+        sLifespan(); // must be last system call (in order for nuke to work)
+        m_currentFrame++;
+        }
+
         sUserInput();
         sRender();
-        sLifespan(); // must be last system call (in order for nuke to work)
-
-        m_currentFrame++;
     }
 }
 
@@ -287,6 +286,9 @@ void Game::sUserInput()
         {
             switch (event.key.code)
             {
+                case sf::Keyboard::P:
+                    m_paused = !m_paused;
+                    break;
                 case sf::Keyboard::W:
                     m_player->cInput->up = true;
                     break;
@@ -324,7 +326,8 @@ void Game::sUserInput()
             }
         }
 
-        if (event.type == sf::Event::MouseButtonPressed) 
+
+        if (event.type == sf::Event::MouseButtonPressed && !m_paused) 
         {
             if (event.mouseButton.button == sf::Mouse::Left)
             {
