@@ -6,21 +6,19 @@
 class CTransform
 {
 public:
-    Vec2   pos   = {0.0, 0.0};
-    Vec2   velocity = {0.0, 0.0};
-    double angle = 0;
+    Vec2    pos         = {0.0, 0.0};
+    Vec2    velocity    = {0.0, 0.0};
+    double  angle       = 0;
 
     CTransform(Vec2 p, Vec2 v, double a)
-        : pos(p)
-        , velocity(v)
-        , angle(a)
-    {}
+        : pos(p), velocity(v), angle(a) {}
 };
 
 class CCollision
 {
 public:
     float radius = 0;
+
     CCollision(float r)
         : radius(r) {}
 };
@@ -29,6 +27,7 @@ class CScore
 {
 public:
     int score = 0;
+
     CScore(int s)
         : score(s) {}
 };
@@ -51,8 +50,9 @@ public:
 class CLifespan
 {
 public:
-    int remaining = 0; // remaining lifespan
-    int total = 0; // initial amount of lifespan
+    int remaining   = 0;
+    int total       = 0;
+
     CLifespan(int total)
         : remaining(total), total(total) {}
 };
@@ -60,11 +60,11 @@ public:
 class CInput
 {
 public:
-    bool up = false;
-    bool left = false;
-    bool right = false;
-    bool down = false;
-    bool shoot = false;
+    bool up     = false;
+    bool left   = false;
+    bool right  = false;
+    bool down   = false;
+    bool shoot  = false;
 
     CInput() {}
 };
