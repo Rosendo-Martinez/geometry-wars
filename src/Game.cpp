@@ -137,20 +137,16 @@ void Game::sCollision()
     // for each e
     for (auto e : m_entities.getEntities("enemy"))
     {
-        // if (e->cLifespan != nullptr)
-        // {
-        //     break;
-        // }
+        if (e->cLifespan != nullptr)
+        {
+            break;
+        }
         for (auto eOther : m_entities.getEntities("enemy"))
         {
-            if (e->id() == eOther->id())
+            if (e->id() == eOther->id() || eOther->cLifespan != nullptr)
             {
                 continue;
             }
-            // if (e->id() == eOther->id() || eOther->cLifespan != nullptr)
-            // {
-            //     continue;
-            // }
 
             bool isCollision = e->cTransform->pos.distSqr(eOther->cTransform->pos) < (e->cCollision->radius + eOther->cCollision->radius) * (e->cCollision->radius + eOther->cCollision->radius);
 
