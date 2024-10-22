@@ -133,6 +133,63 @@ void Game::sCollision()
             }
         }
     }
+
+    // for each e
+    for (auto e : m_entities.getEntities("enemy"))
+    {
+        if (e->cLifespan != nullptr)
+        {
+            break;
+        }
+        for (auto eOther : m_entities.getEntities("enemy"))
+        {
+            if (e->id() == eOther->id() || eOther->cLifespan != nullptr)
+            {
+                continue;
+            }
+
+            bool isCollision = e->cTransform->pos.distSqr(eOther->cTransform->pos) < (e->cCollision->radius + eOther->cCollision->radius) * (e->cCollision->radius + eOther->cCollision->radius);
+
+            if (isCollision)
+            {
+                // e is to the left
+                if (e->cTransform->pos.x < eOther->cTransform->pos.x)
+                {
+                    e->cTransform->velocity.x = e->cTransform->velocity.x < 0 ? e->cTransform->velocity.x : e->cTransform->velocity.x * -1;
+                    eOther->cTransform->velocity.x = eOther->cTransform->velocity.x > 0 ? e->cTransform->velocity.x : e->cTransform->velocity.x * -1;
+                }
+                // else
+                else 
+                {
+                    eOther->cTransform->velocity.x = eOther->cTransform->velocity.x < 0 ? e->cTransform->velocity.x : e->cTransform->velocity.x * -1;
+                    e->cTransform->velocity.x = e->cTransform->velocity.x > 0 ? e->cTransform->velocity.x : e->cTransform->velocity.x * -1;
+                } 
+
+                // e is on top
+                if (e->cTransform->pos.y < eOther->cTransform->pos.y)
+                {
+                    e->cTransform->velocity.y = e->cTransform->velocity.y < 0 ? e->cTransform->velocity.y : e->cTransform->velocity.y * -1;
+                    eOther->cTransform->velocity.y = eOther->cTransform->velocity.y > 0 ? e->cTransform->velocity.y : e->cTransform->velocity.y * -1;
+                }
+                // else
+                else 
+                {
+                    eOther->cTransform->velocity.y = eOther->cTransform->velocity.y < 0 ? e->cTransform->velocity.y : e->cTransform->velocity.y * -1;
+                    e->cTransform->velocity.y = e->cTransform->velocity.y > 0 ? e->cTransform->velocity.y : e->cTransform->velocity.y * -1;
+                }
+
+                break;
+            }
+        }
+    }
+        // for each otherE
+            // if the two e's are colliding
+                // the e's will go in oppisote directions
+                    // teh one to the left will go to the left, the other to the right
+                    // the one on top will move up, the other down
+                    // break (just do cd for 1 col)
+    
+            
 }
 
 
