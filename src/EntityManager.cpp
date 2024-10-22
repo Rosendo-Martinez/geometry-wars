@@ -8,6 +8,7 @@ std::shared_ptr<Entity> EntityManager::addEntity(const std::string& tag)
     return e;
 }
 
+// removes dead entities & adds entities in wait list, should be called at begging of next frame (delayed affect)
 void EntityManager::update()
 {
     // add entities on wait list
