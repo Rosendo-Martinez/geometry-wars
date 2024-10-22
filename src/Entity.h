@@ -8,19 +8,20 @@ class Entity
 {
 public:
     std::shared_ptr<CTransform> cTransform;
-    std::shared_ptr<CShape> cShape;
+    std::shared_ptr<CShape>     cShape;
     std::shared_ptr<CCollision> cCollision;
-    std::shared_ptr<CInput> cInput;
-    std::shared_ptr<CLifespan> cLifespan;
-    std::shared_ptr<CScore> cScore;
+    std::shared_ptr<CInput>     cInput;
+    std::shared_ptr<CLifespan>  cLifespan;
+    std::shared_ptr<CScore>     cScore;
 
     bool isActive() const;
-    const std::string & tag() const { return m_tag; }
     const size_t id() const;
-    void destroy() { m_active = false; }
+    const std::string & tag() const;
+    void destroy();
 
 private:
     friend class EntityManager;
+
     std::string m_tag    = "default";
     bool        m_active = true;
     size_t      m_id     = 0;

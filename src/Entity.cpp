@@ -12,3 +12,13 @@ const size_t Entity::id() const
 
 Entity::Entity(const std::string& tag, const size_t id)
     : m_tag(tag), m_id(id) {}
+
+const std::string & Entity::tag() const 
+{ 
+    return m_tag; 
+}
+
+void Entity::destroy() 
+{ 
+    m_active = false; 
+}
