@@ -137,16 +137,20 @@ void Game::sCollision()
     // for each e
     for (auto e : m_entities.getEntities("enemy"))
     {
-        if (e->cLifespan != nullptr)
-        {
-            break;
-        }
+        // if (e->cLifespan != nullptr)
+        // {
+        //     break;
+        // }
         for (auto eOther : m_entities.getEntities("enemy"))
         {
-            if (e->id() == eOther->id() || eOther->cLifespan != nullptr)
+            if (e->id() == eOther->id())
             {
                 continue;
             }
+            // if (e->id() == eOther->id() || eOther->cLifespan != nullptr)
+            // {
+            //     continue;
+            // }
 
             bool isCollision = e->cTransform->pos.distSqr(eOther->cTransform->pos) < (e->cCollision->radius + eOther->cCollision->radius) * (e->cCollision->radius + eOther->cCollision->radius);
 
@@ -156,33 +160,7 @@ void Game::sCollision()
                 newDirection.normalize();
 
                 e->cTransform->velocity = newDirection * e->cTransform->velocity.length();
-                eOther->cTransform->velocity = newDirection * eOther->cTransform->velocity.length();
-
-                // e is to the left
-                if (e->cTransform->pos.x < eOther->cTransform->pos.x)
-                {
-                    e->cTransform->velocity.x = e->cTransform->velocity.x < 0 ? e->cTransform->velocity.x : e->cTransform->velocity.x * -1;
-                    eOther->cTransform->velocity.x = eOther->cTransform->velocity.x > 0 ? e->cTransform->velocity.x : e->cTransform->velocity.x * -1;
-                }
-                // else
-                else 
-                {
-                    eOther->cTransform->velocity.x = eOther->cTransform->velocity.x < 0 ? e->cTransform->velocity.x : e->cTransform->velocity.x * -1;
-                    e->cTransform->velocity.x = e->cTransform->velocity.x > 0 ? e->cTransform->velocity.x : e->cTransform->velocity.x * -1;
-                } 
-
-                // e is on top
-                if (e->cTransform->pos.y < eOther->cTransform->pos.y)
-                {
-                    e->cTransform->velocity.y = e->cTransform->velocity.y < 0 ? e->cTransform->velocity.y : e->cTransform->velocity.y * -1;
-                    eOther->cTransform->velocity.y = eOther->cTransform->velocity.y > 0 ? e->cTransform->velocity.y : e->cTransform->velocity.y * -1;
-                }
-                // else
-                else 
-                {
-                    eOther->cTransform->velocity.y = eOther->cTransform->velocity.y < 0 ? e->cTransform->velocity.y : e->cTransform->velocity.y * -1;
-                    e->cTransform->velocity.y = e->cTransform->velocity.y > 0 ? e->cTransform->velocity.y : e->cTransform->velocity.y * -1;
-                }
+                eOther->cTransform->velocity = newDirection * (eOther->cTransform->velocity.length() * -1);
 
                 float d = (e->cCollision->radius + eOther->cCollision->radius - e->cTransform->pos.dist(eOther->cTransform->pos))/2; 
                 e->cTransform->pos += e->cTransform->velocity * (d/e->cTransform->velocity.length());
