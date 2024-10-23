@@ -27,8 +27,14 @@ void Game::run()
         // std::cout << "Entities Count: " << m_entities.getEntities().size() << " Bullets Count: " << m_entities.getEntities("bullet").size() << " Enemies Count: " << m_entities.getEntities("enemy").size() << std::endl;
         // std::cout << m_player->cScore->score << std::endl;
 
+        // start menu scene
+        if (m_startMenu)
+        {
+            sRender();
+            sUserInput();
+        }
         // pause scene
-        if (m_paused)
+        else if (m_paused)
         {
             sUserInput();
             sRender();
@@ -37,7 +43,7 @@ void Game::run()
         else
         {
             m_entities.update();
-            
+
             sEnemySpawner();
             sMovement();
             sCollision();
@@ -296,6 +302,9 @@ void Game::sUserInput()
         {
             switch (event.key.code)
             {
+                case sf::Keyboard::Enter:
+                    m_startMenu = false;
+                    break;
                 case sf::Keyboard::P:
                     m_paused = !m_paused;
                     break;
@@ -474,6 +483,34 @@ void Game::sRender()
         m_window.draw(left);
         m_window.draw(right);
         m_window.draw(circle);
+    }
+
+    if (m_startMenu)
+    {
+        m_window.clear();
+
+        // sf::Text score;
+        // score.setFont(m_font);
+        // score.setString(strs.str());
+        // score.setCharacterSize(30);
+        // score.setColor(sf::Color::Cyan);
+        // score.setStyle(sf::Text::Bold);
+
+        sf::Text title;
+        title.setFont(m_font);
+        title.setString("Geometry Wars");
+        title.setCharacterSize(50);
+        title.setColor(sf::Color::Cyan);
+        title.setStyle(sf::Text::Bold | sf::Text::Underlined);
+
+        title.setOrigin(sf::Vector2f(title.getLocalBounds().left, title.getLocalBounds().top));
+
+        // title.move(sf::Vector2f(-title.getLocalBounds().left, -title.getLocalBounds().top));
+
+        title.setPosition(sf::Vector2f(m_window.getSize().x/2 - title.getLocalBounds().width/2, m_window.getSize().y/2 - title.getLocalBounds().height/2));
+
+
+        m_window.draw(title);
     }
 
     m_window.display();

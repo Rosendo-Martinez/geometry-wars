@@ -29,6 +29,7 @@ private:
     int                 m_lastNukeTime          = 0;
     bool                m_paused                = false;
     bool                m_running               = true;
+    bool                m_startMenu             = true;
 
     std::shared_ptr<Entity> m_player;
 
