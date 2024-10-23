@@ -408,34 +408,6 @@ void Game::sRender()
         m_window.draw(e->cShape->circle);
     }
 
-    if (m_paused)
-    {
-        float width = 25.f;
-        float height = 5.f * width;
-        float margin = 20.f;
-        sf::RectangleShape left;
-        sf::RectangleShape right;
-        sf::CircleShape circle;
-
-        left.setFillColor(sf::Color::White);
-        right.setFillColor(sf::Color::White);
-        circle.setFillColor(sf::Color(255, 255, 255, 0));
-        circle.setOutlineColor(sf::Color::White);
-        circle.setOutlineThickness(10);
-        circle.setPointCount(10);
-
-        left.setSize(sf::Vector2f(width,height));
-        right.setSize(sf::Vector2f(width,height));
-        circle.setRadius(height - 30);
-
-        left.setPosition(sf::Vector2f(m_window.getSize().x/2 - width - margin, m_window.getSize().y/2 - height/2));
-        right.setPosition(sf::Vector2f(m_window.getSize().x/2 + margin, m_window.getSize().y/2 - height/2));
-        circle.setPosition(sf::Vector2f(m_window.getSize().x/2 - circle.getRadius(), m_window.getSize().y/2 - circle.getRadius()));
-
-        m_window.draw(left);
-        m_window.draw(right);
-        m_window.draw(circle);
-    }
 
     std::ostringstream strs;
     strs << "Score: " << m_player->cScore->score;
@@ -460,6 +432,39 @@ void Game::sRender()
     nukeCoolDown.setPointCount(m_nukeConfig.V);
     nukeCoolDown.setPosition(15,50);
     m_window.draw(nukeCoolDown);
+
+    if (m_paused)
+    {
+        float width = 25.f;
+        float height = 5.f * width;
+        float margin = 20.f;
+        sf::RectangleShape left;
+        sf::RectangleShape right;
+        sf::CircleShape circle;
+        sf::RectangleShape overlay;
+
+        left.setFillColor(sf::Color::White);
+        right.setFillColor(sf::Color::White);
+        circle.setFillColor(sf::Color(255, 255, 255, 0));
+        overlay.setFillColor(sf::Color(50, 50, 50, 120));
+        circle.setOutlineColor(sf::Color::White);
+        circle.setOutlineThickness(10);
+        circle.setPointCount(10);
+
+        left.setSize(sf::Vector2f(width,height));
+        right.setSize(sf::Vector2f(width,height));
+        overlay.setSize(sf::Vector2f(m_window.getSize().x, m_window.getSize().y));
+        circle.setRadius(height - 30);
+
+        left.setPosition(sf::Vector2f(m_window.getSize().x/2 - width - margin, m_window.getSize().y/2 - height/2));
+        right.setPosition(sf::Vector2f(m_window.getSize().x/2 + margin, m_window.getSize().y/2 - height/2));
+        circle.setPosition(sf::Vector2f(m_window.getSize().x/2 - circle.getRadius(), m_window.getSize().y/2 - circle.getRadius()));
+
+        m_window.draw(overlay);
+        m_window.draw(left);
+        m_window.draw(right);
+        m_window.draw(circle);
+    }
 
     m_window.display();
 }
