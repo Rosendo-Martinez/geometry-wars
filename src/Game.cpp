@@ -541,41 +541,65 @@ void Game::sRender()
         sf::Text left;
         sf::Text down;
         sf::Text right;
+        sf::Text mainWeapon;
+        sf::Text specialWeapon;
+        sf::Text pause;
 
         up.setFont(m_font);
         left.setFont(m_font);
         down.setFont(m_font);
         right.setFont(m_font);
+        mainWeapon.setFont(m_font);
+        specialWeapon.setFont(m_font);
+        pause.setFont(m_font);
 
         up.setString("W - up");
         left.setString("A - left");
         down.setString("S - down");
         right.setString("D - right");
+        mainWeapon.setString("LEFT CLICK - main weapon");
+        specialWeapon.setString("RIGHT CLICK - special weapon");
+        pause.setString("P - pause/unpause");
 
         up.setCharacterSize(12);
         left.setCharacterSize(12);
         down.setCharacterSize(12);
         right.setCharacterSize(12);
+        mainWeapon.setCharacterSize(12);
+        specialWeapon.setCharacterSize(12);
+        pause.setCharacterSize(12);
 
         up.setColor(sf::Color::White);
         left.setColor(sf::Color::White);
         down.setColor(sf::Color::White);
         right.setColor(sf::Color::White);
+        mainWeapon.setColor(sf::Color::White);
+        specialWeapon.setColor(sf::Color::White);
+        pause.setColor(sf::Color::White);
 
         up.setOrigin(sf::Vector2f(up.getLocalBounds().left, up.getLocalBounds().top));
         left.setOrigin(sf::Vector2f(left.getLocalBounds().left, left.getLocalBounds().top));
         down.setOrigin(sf::Vector2f(down.getLocalBounds().left, down.getLocalBounds().top));
         right.setOrigin(sf::Vector2f(right.getLocalBounds().left, right.getLocalBounds().top));
+        mainWeapon.setOrigin(sf::Vector2f(mainWeapon.getLocalBounds().left, mainWeapon.getLocalBounds().top));
+        specialWeapon.setOrigin(sf::Vector2f(specialWeapon.getLocalBounds().left, specialWeapon.getLocalBounds().top));
+        pause.setOrigin(sf::Vector2f(pause.getLocalBounds().left, pause.getLocalBounds().top));
 
         up.setPosition(sf::Vector2f(10,10));
         left.setPosition(sf::Vector2f(10, up.getPosition().y + up.getLocalBounds().height + 10));
         down.setPosition(sf::Vector2f(10, left.getPosition().y + left.getLocalBounds().height + 10));
         right.setPosition(sf::Vector2f(10, down.getPosition().y + down.getLocalBounds().height + 10));
+        mainWeapon.setPosition(sf::Vector2f(10, right.getPosition().y + right.getLocalBounds().height + 10));
+        specialWeapon.setPosition(sf::Vector2f(10, mainWeapon.getPosition().y + mainWeapon.getLocalBounds().height + 10));
+        pause.setPosition(sf::Vector2f(10, specialWeapon.getPosition().y + specialWeapon.getLocalBounds().height + 10));
 
         m_window.draw(up);
         m_window.draw(left);
         m_window.draw(down);
         m_window.draw(right);
+        m_window.draw(mainWeapon);
+        m_window.draw(specialWeapon);
+        m_window.draw(pause);
     }
 
     m_window.display();
