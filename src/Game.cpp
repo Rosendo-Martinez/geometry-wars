@@ -40,6 +40,8 @@ void Game::run()
         sUserInput();
         sRender();
     }
+    
+    m_window.close();
 }
 
 
