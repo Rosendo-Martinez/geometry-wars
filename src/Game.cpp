@@ -24,21 +24,29 @@ void Game::run()
 {
     while (m_running)
     {
-        m_entities.update();
         // std::cout << "Entities Count: " << m_entities.getEntities().size() << " Bullets Count: " << m_entities.getEntities("bullet").size() << " Enemies Count: " << m_entities.getEntities("enemy").size() << std::endl;
         // std::cout << m_player->cScore->score << std::endl;
-        if (!m_paused)
-        {
-            // ?
-        sEnemySpawner();
-        sMovement();
-        sCollision();
-        sLifespan(); // must be last system call (in order for nuke to work)
-        m_currentFrame++;
-        }
 
-        sUserInput();
-        sRender();
+        // pause scene
+        if (m_paused)
+        {
+            sUserInput();
+            sRender();
+        }
+        // in game scene
+        else
+        {
+            m_entities.update();
+            
+            sEnemySpawner();
+            sMovement();
+            sCollision();
+            sLifespan(); // must be last system call (in order for nuke to work)
+            sUserInput();
+            sRender();
+
+            m_currentFrame++;
+        }
     }
     
     m_window.close();
