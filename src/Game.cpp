@@ -529,9 +529,53 @@ void Game::sRender()
 
         m_window.draw(enterGame);
 
-        
+        // key mappings
+        // W - up
+        // A - left
+        // S - down
+        // D - right
+        // P - Pause/Unpause
+        // Enter - Play/Replay
 
+        sf::Text up;
+        sf::Text left;
+        sf::Text down;
+        sf::Text right;
 
+        up.setFont(m_font);
+        left.setFont(m_font);
+        down.setFont(m_font);
+        right.setFont(m_font);
+
+        up.setString("W - up");
+        left.setString("A - left");
+        down.setString("S - down");
+        right.setString("D - right");
+
+        up.setCharacterSize(12);
+        left.setCharacterSize(12);
+        down.setCharacterSize(12);
+        right.setCharacterSize(12);
+
+        up.setColor(sf::Color::White);
+        left.setColor(sf::Color::White);
+        down.setColor(sf::Color::White);
+        right.setColor(sf::Color::White);
+
+        up.setOrigin(sf::Vector2f(up.getLocalBounds().left, up.getLocalBounds().top));
+        left.setOrigin(sf::Vector2f(left.getLocalBounds().left, left.getLocalBounds().top));
+        down.setOrigin(sf::Vector2f(down.getLocalBounds().left, down.getLocalBounds().top));
+        right.setOrigin(sf::Vector2f(right.getLocalBounds().left, right.getLocalBounds().top));
+
+        up.setPosition(sf::Vector2f(10,10));
+        left.setPosition(sf::Vector2f(10, up.getPosition().y + up.getLocalBounds().height + 10));
+        down.setPosition(sf::Vector2f(10, left.getPosition().y + left.getLocalBounds().height + 10));
+        right.setPosition(sf::Vector2f(10, down.getPosition().y + down.getLocalBounds().height + 10));
+
+        m_window.draw(up);
+        m_window.draw(left);
+        m_window.draw(down);
+        m_window.draw(right);
     }
 
     m_window.display();
