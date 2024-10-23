@@ -515,8 +515,13 @@ void Game::sRender()
         float margin = 30;
         enterGame.setFont(m_font);
         enterGame.setString("press enter to play");
-        enterGame.setCharacterSize(18);
-        enterGame.setColor(sf::Color::White);
+        enterGame.setCharacterSize(16);
+        enterGame.setColor(sf::Color(255, 255, 255, 255*m_startMenuInstructionAlphaPercent));
+        m_startMenuInstructionAlphaPercent -= 0.01;
+        if (m_startMenuInstructionAlphaPercent < 0)
+        {
+            m_startMenuInstructionAlphaPercent = 1;
+        }
         
         enterGame.setOrigin(sf::Vector2f(enterGame.getLocalBounds().left, enterGame.getLocalBounds().top));
 

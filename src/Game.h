@@ -30,6 +30,7 @@ private:
     bool                m_paused                = false;
     bool                m_running               = true;
     bool                m_startMenu             = true;
+    float                m_startMenuInstructionAlphaPercent = 1;
 
     std::shared_ptr<Entity> m_player;
 
