@@ -22,6 +22,9 @@ Game::Game(const std::string & config)
 
 void Game::run()
 {
+    spawnEnemy();
+    m_entities.update();
+
     while (m_running)
     {
         // std::cout << "Entities Count: " << m_entities.getEntities().size() << " Bullets Count: " << m_entities.getEntities("bullet").size() << " Enemies Count: " << m_entities.getEntities("enemy").size() << std::endl;
@@ -32,6 +35,7 @@ void Game::run()
         {
             sRender();
             sUserInput();
+            sMovement();
         }
         // pause scene
         else if (m_paused)
@@ -488,6 +492,35 @@ void Game::sRender()
     if (m_startMenu)
     {
         m_window.clear();
+
+        for (auto e : m_entities.getEntities("enemy")) 
+        {
+            e->cShape->circle.setPosition(e->cTransform->pos.x, e->cTransform->pos.y);
+
+            e->cTransform->angle += 1.0f;
+            e->cShape->circle.setRotation(e->cTransform->angle);
+
+            if (e->cLifespan != nullptr)
+            {
+                const float lifespanPercent = ((float) e->cLifespan->remaining / (float) e->cLifespan->total);
+                const int alpha = 255 * lifespanPercent;
+
+                sf::Color fill = sf::Color(e->cShape->circle.getFillColor());
+                sf::Color outline = sf::Color(e->cShape->circle.getOutlineColor());
+                fill.a = alpha;
+                outline.a = alpha;
+
+                e->cShape->circle.setFillColor(fill);
+                e->cShape->circle.setOutlineColor(outline);
+            }
+
+            m_window.draw(e->cShape->circle);
+        }
+
+        sf::RectangleShape overlay;
+        overlay.setFillColor(sf::Color(50, 50, 50, 120));
+        overlay.setSize(sf::Vector2f(m_window.getSize().x, m_window.getSize().y));
+        m_window.draw(overlay);
 
         // sf::Text score;
         // score.setFont(m_font);
