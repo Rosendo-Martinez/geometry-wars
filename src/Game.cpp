@@ -509,8 +509,24 @@ void Game::sRender()
 
         title.setPosition(sf::Vector2f(m_window.getSize().x/2 - title.getLocalBounds().width/2, m_window.getSize().y/2 - title.getLocalBounds().height/2));
 
-
         m_window.draw(title);
+
+        sf::Text enterGame;
+        float margin = 30;
+        enterGame.setFont(m_font);
+        enterGame.setString("press enter to play");
+        enterGame.setCharacterSize(18);
+        enterGame.setColor(sf::Color::White);
+        
+        enterGame.setOrigin(sf::Vector2f(enterGame.getLocalBounds().left, enterGame.getLocalBounds().top));
+
+        enterGame.setPosition(sf::Vector2f(m_window.getSize().x/2 - enterGame.getLocalBounds().width/2, title.getPosition().y + title.getLocalBounds().height + margin));
+
+        m_window.draw(enterGame);
+
+        
+
+
     }
 
     m_window.display();
