@@ -69,15 +69,21 @@ void Game::run()
     m_window.close();
 }
 
-
-// Private Class Methods
-
+/**
+ * Initializes the window, loads text font, and spawns the player.
+ */
 void Game::init()
 {
-    m_window.create(sf::VideoMode(1280, 720), "GeoWars");
-    m_window.setFramerateLimit(60);
+    const int windowWidth = 1280;
+    const int windowHeight = 720;
+    const int frameLimit = 60;
+
+    // Initialize the window
+    m_window.create(sf::VideoMode(windowWidth, windowHeight), "GeoWars");
+    m_window.setFramerateLimit(frameLimit);
     m_window.setKeyRepeatEnabled(false);
 
+    // Load text font
     if (!m_font.loadFromFile("/home/rose/Projects/geometry-wars/sofachromergit.otf")) {
         std::cout << "Error with loading font.\n";
     }
