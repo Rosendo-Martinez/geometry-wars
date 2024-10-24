@@ -16,7 +16,8 @@ int randInRange(int min, int max)
     return (rand() % (1 + max - min)) + min;
 }
 
-Game::Game(const std::string & config)
+
+Game::Game()
 {
     init();
 }

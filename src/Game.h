@@ -11,7 +11,7 @@ struct NukeConfig { int V = 20, ER = 150, BR = 300, L = 40, REL = 150, FR = 232,
 class Game
 {
 public:
-    Game(const std::string & config);
+    Game();
     void run();
 
 private:
