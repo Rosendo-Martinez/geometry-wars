@@ -21,6 +21,11 @@ int randFromRange(int min, int max)
  * 
  * Use this function instead of overlap() if all you need to known is if two circles overlap
  * because it is more efficient at doing this calculation.
+ * 
+ * pos1 - center of circle 1
+ * pos2 - center of circle 2
+ * r1   - radius of circle 1
+ * r2   - radius of circle 2
  */
 bool isOverlap(Vec2 pos1, Vec2 pos2, float r1, float r2)
 {
