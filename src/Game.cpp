@@ -130,8 +130,8 @@ void Game::sCollision()
     {
         for (auto e : m_entities.getEntities("enemy"))
         {
-            const bool isCollision = b->cTransform->pos.distSqr(e->cTransform->pos) < (b->cCollision->radius + e->cCollision->radius) * (b->cCollision->radius + e->cCollision->radius);
-            if (isCollision)
+            // const bool isCollision = b->cTransform->pos.distSqr(e->cTransform->pos) < (b->cCollision->radius + e->cCollision->radius) * (b->cCollision->radius + e->cCollision->radius);
+            if (isOverlap(b->cTransform->pos, e->cTransform->pos, b->cCollision->radius, e->cCollision->radius))
             {
                 // if is not small enemy
                 if (e->cLifespan == nullptr)
@@ -149,8 +149,8 @@ void Game::sCollision()
     // player-enemy collision
     for (auto e : m_entities.getEntities("enemy"))
     {
-        const bool isCollision = m_player->cTransform->pos.distSqr(e->cTransform->pos) < (m_player->cCollision->radius + e->cCollision->radius) * (m_player->cCollision->radius + e->cCollision->radius);
-        if (isCollision)
+        // const bool isCollision = m_player->cTransform->pos.distSqr(e->cTransform->pos) < (m_player->cCollision->radius + e->cCollision->radius) * (m_player->cCollision->radius + e->cCollision->radius);
+        if (isOverlap(m_player->cTransform->pos, e->cTransform->pos, m_player->cCollision->radius, e->cCollision->radius))
         {
             float mx = m_window.getSize().x / 2.0f;
             float my = m_window.getSize().y / 2.0f;
@@ -169,10 +169,13 @@ void Game::sCollision()
         {
             for (auto e : m_entities.getEntities("enemy"))
             {
-                // explosion is big red ball of nuke
-                // blast is shockwave
-                bool isInExplosion = e->cTransform->pos.distSqr(n->cTransform->pos) < m_nukeConfig.ER * m_nukeConfig.ER;
-                bool isInBlast = e->cTransform->pos.distSqr(n->cTransform->pos) < m_nukeConfig.BR * m_nukeConfig.BR;
+                // Explosion --> big red ball of death of nuke
+                // Blast --> shockwave
+
+                // Enemy is in explosion if its center is inside the explosion radius
+                bool isInExplosion = isOverlap(e->cTransform->pos, n->cTransform->pos, m_nukeConfig.ER, 0);
+                // Enemy is in blast (shockwave) if its center is inside the blast (shockwave) radius
+                bool isInBlast = isOverlap(e->cTransform->pos, n->cTransform->pos, m_nukeConfig.BR, 0);
 
                 if (isInExplosion || (isInBlast && e->cLifespan != nullptr))
                 {
@@ -207,9 +210,9 @@ void Game::sCollision()
                 continue;
             }
 
-            bool isCollision = e->cTransform->pos.distSqr(eOther->cTransform->pos) < (e->cCollision->radius + eOther->cCollision->radius) * (e->cCollision->radius + eOther->cCollision->radius);
+            // bool isCollision = e->cTransform->pos.distSqr(eOther->cTransform->pos) < (e->cCollision->radius + eOther->cCollision->radius) * (e->cCollision->radius + eOther->cCollision->radius);
 
-            if (isCollision)
+            if (isOverlap(e->cTransform->pos, eOther->cTransform->pos, e->cCollision->radius, eOther->cCollision->radius))
             {
                 Vec2 newDirection = e->cTransform->pos - eOther->cTransform->pos;
                 newDirection.normalize();
@@ -217,7 +220,7 @@ void Game::sCollision()
                 e->cTransform->velocity = newDirection * e->cTransform->velocity.length();
                 eOther->cTransform->velocity = newDirection * (eOther->cTransform->velocity.length() * -1);
 
-                float d = (e->cCollision->radius + eOther->cCollision->radius - e->cTransform->pos.dist(eOther->cTransform->pos))/2; 
+                float d = overlap(e->cTransform->pos, eOther->cTransform->pos, e->cCollision->radius, eOther->cCollision->radius)/2; 
                 e->cTransform->pos += e->cTransform->velocity * (d/e->cTransform->velocity.length());
                 eOther->cTransform->pos += eOther->cTransform->velocity * (d/eOther->cTransform->velocity.length());
             }
