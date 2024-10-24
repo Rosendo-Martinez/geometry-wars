@@ -17,6 +17,37 @@ int randInRange(int min, int max)
 }
 
 /**
+ * Checks if two circles are overlapping.
+ * 
+ * Use this function instead of overlap() if all you need to known is if two circles overlap
+ * because it is more efficient at doing this calculation.
+ */
+bool isOverlap(Vec2 pos1, Vec2 pos2, float r1, float r2)
+{
+    // Apparently, calculating the square root of a number is very expensive. So instead we just compare distances squared.
+    return pos1.distSqr(pos2) < (r1 + r2) * (r1 + r2);
+}
+
+/**
+ * Returns the overlap or distance between the two circles.
+ * 
+ * If the overlap is greater than 0, then the returned value is the overlap of the two circles.
+ * 
+ * If the overlap is less then or equal to 0, then it means the two circles are not overlapping,
+ * and the absolute value of this overlap is the distance between the two circles. To be specific,
+ * this distance is the distance between the two centers of the circles minus both their radiuses.
+ * 
+ * pos1 - center of circle 1
+ * pos2 - center of circle 2
+ * r1   - radius of circle 1
+ * r2   - radius of circle 2
+ */
+float overlap(Vec2 pos1, Vec2 pos2, float r1, float r2)
+{
+    return (r1 + r2) - pos1.dist(pos2);
+}
+
+/**
  * Creates instance of Game and initializes it.
  */
 Game::Game()
