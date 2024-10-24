@@ -123,7 +123,7 @@ void Game::init()
 }
 
 /**
- * System for collision detection.
+ * System for collisions.
  */
 void Game::sCollision()
 {
@@ -252,7 +252,7 @@ void Game::sCollision()
 }
 
 /**
- * 
+ * System for movement.
  */
 void Game::sMovement()
 {
