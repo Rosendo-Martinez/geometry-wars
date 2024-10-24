@@ -34,7 +34,7 @@ private:
 
     std::shared_ptr<Entity> m_player;
 
-    void init(const std::string & config);
+    void init();
     void setPaused(bool paused);
 
     void sMovement();

@@ -18,7 +18,7 @@ int randInRange(int min, int max)
 
 Game::Game(const std::string & config)
 {
-    init(config);
+    init();
 }
 
 
@@ -67,12 +67,8 @@ void Game::run()
 
 // Private Class Methods
 
-void Game::init(const std::string & path)
+void Game::init()
 {
-    // TODO: read in config file here
-    //      store values in structs
-    // std::ifstream fin(path);
-
     m_window.create(sf::VideoMode(1280, 720), "GeoWars");
     m_window.setFramerateLimit(60);
     m_window.setKeyRepeatEnabled(false);
