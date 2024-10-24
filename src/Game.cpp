@@ -11,7 +11,7 @@
  * 
  * The range is from min (included) to max (included).
  */
-int randInRange(int min, int max)
+int randFromRange(int min, int max)
 {
     return (rand() % (1 + max - min)) + min;
 }
@@ -811,16 +811,16 @@ void Game::spawnEnemy()
     auto entity = m_entities.addEntity("enemy");
 
     
-    const float ex = randInRange(m_enemyConfig.SR, m_window.getSize().x - m_enemyConfig.SR);
-    const float ey = randInRange(m_enemyConfig.SR, m_window.getSize().y - m_enemyConfig.SR);
-    const float componentSpeed = std::sqrt(randInRange(m_enemyConfig.SMIN, m_enemyConfig.SMAX) * 2);
+    const float ex = randFromRange(m_enemyConfig.SR, m_window.getSize().x - m_enemyConfig.SR);
+    const float ey = randFromRange(m_enemyConfig.SR, m_window.getSize().y - m_enemyConfig.SR);
+    const float componentSpeed = std::sqrt(randFromRange(m_enemyConfig.SMIN, m_enemyConfig.SMAX) * 2);
     const int velXSign = std::rand() % 2 == 0 ? 1 : -1;
     const int velYSign = std::rand() % 2 == 0 ? 1 : -1;
-    const int shapePoints = randInRange(m_enemyConfig.VMIN, m_enemyConfig.VMAX);
+    const int shapePoints = randFromRange(m_enemyConfig.VMIN, m_enemyConfig.VMAX);
 
     entity->cTransform = std::make_shared<CTransform>(Vec2(ex,ey), Vec2(componentSpeed * velXSign, componentSpeed * velYSign), 0.0f);
 
-    entity->cShape = std::make_shared<CShape>(m_enemyConfig.SR, shapePoints, sf::Color(randInRange(0,255),randInRange(0,255),randInRange(0,255)), sf::Color(m_enemyConfig.OR,m_enemyConfig.OG,m_enemyConfig.OB), m_enemyConfig.OT);
+    entity->cShape = std::make_shared<CShape>(m_enemyConfig.SR, shapePoints, sf::Color(randFromRange(0,255),randFromRange(0,255),randFromRange(0,255)), sf::Color(m_enemyConfig.OR,m_enemyConfig.OG,m_enemyConfig.OB), m_enemyConfig.OT);
 
     entity->cInput = std::make_shared<CInput>();
 
