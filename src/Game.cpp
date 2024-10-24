@@ -16,7 +16,9 @@ int randInRange(int min, int max)
     return (rand() % (1 + max - min)) + min;
 }
 
-
+/**
+ * Creates instance of Game and initializes it.
+ */
 Game::Game()
 {
     init();
