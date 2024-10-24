@@ -5,14 +5,16 @@
 #include <cmath>
 #include <sstream>
 
-// Helper functions
 
-int randRange(int min, int max)
+/**
+ * Returns a random number within the given range.
+ * 
+ * The range is from min (included) to max (included).
+ */
+int randInRange(int min, int max)
 {
     return (rand() % (1 + max - min)) + min;
 }
-
-// Public Class Methods
 
 Game::Game(const std::string & config)
 {
@@ -22,28 +24,27 @@ Game::Game(const std::string & config)
 
 void Game::run()
 {
+    // Spawn 1 enemy for start menu scene so that it bounces and moves around in the background
     spawnEnemy();
     m_entities.update();
 
+    // While game is running
     while (m_running)
     {
-        // std::cout << "Entities Count: " << m_entities.getEntities().size() << " Bullets Count: " << m_entities.getEntities("bullet").size() << " Enemies Count: " << m_entities.getEntities("enemy").size() << std::endl;
-        // std::cout << m_player->cScore->score << std::endl;
-
-        // start menu scene
+        // Start menu scene
         if (m_startMenu)
         {
             sRender();
             sUserInput();
             sMovement();
         }
-        // pause scene
+        // Pause scene
         else if (m_paused)
         {
             sUserInput();
             sRender();
         }
-        // in game scene
+        // In-game scene
         else
         {
             m_entities.update();
@@ -51,7 +52,7 @@ void Game::run()
             sEnemySpawner();
             sMovement();
             sCollision();
-            sLifespan(); // must be last system call (in order for nuke to work)
+            sLifespan(); // must be last system call (in order for nuke to work) [What?]
             sUserInput();
             sRender();
 
@@ -59,6 +60,7 @@ void Game::run()
         }
     }
     
+    // Close window
     m_window.close();
 }
 
@@ -743,16 +745,16 @@ void Game::spawnEnemy()
     auto entity = m_entities.addEntity("enemy");
 
     
-    const float ex = randRange(m_enemyConfig.SR, m_window.getSize().x - m_enemyConfig.SR);
-    const float ey = randRange(m_enemyConfig.SR, m_window.getSize().y - m_enemyConfig.SR);
-    const float componentSpeed = std::sqrt(randRange(m_enemyConfig.SMIN, m_enemyConfig.SMAX) * 2);
+    const float ex = randInRange(m_enemyConfig.SR, m_window.getSize().x - m_enemyConfig.SR);
+    const float ey = randInRange(m_enemyConfig.SR, m_window.getSize().y - m_enemyConfig.SR);
+    const float componentSpeed = std::sqrt(randInRange(m_enemyConfig.SMIN, m_enemyConfig.SMAX) * 2);
     const int velXSign = std::rand() % 2 == 0 ? 1 : -1;
     const int velYSign = std::rand() % 2 == 0 ? 1 : -1;
-    const int shapePoints = randRange(m_enemyConfig.VMIN, m_enemyConfig.VMAX);
+    const int shapePoints = randInRange(m_enemyConfig.VMIN, m_enemyConfig.VMAX);
 
     entity->cTransform = std::make_shared<CTransform>(Vec2(ex,ey), Vec2(componentSpeed * velXSign, componentSpeed * velYSign), 0.0f);
 
-    entity->cShape = std::make_shared<CShape>(m_enemyConfig.SR, shapePoints, sf::Color(randRange(0,255),randRange(0,255),randRange(0,255)), sf::Color(m_enemyConfig.OR,m_enemyConfig.OG,m_enemyConfig.OB), m_enemyConfig.OT);
+    entity->cShape = std::make_shared<CShape>(m_enemyConfig.SR, shapePoints, sf::Color(randInRange(0,255),randInRange(0,255),randInRange(0,255)), sf::Color(m_enemyConfig.OR,m_enemyConfig.OG,m_enemyConfig.OB), m_enemyConfig.OT);
 
     entity->cInput = std::make_shared<CInput>();
 
