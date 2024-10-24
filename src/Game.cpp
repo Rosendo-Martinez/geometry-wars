@@ -251,105 +251,107 @@ void Game::sCollision()
     }       
 }
 
-
+/**
+ * 
+ */
 void Game::sMovement()
 {
-    // TODO: imp. all entity movement in this function
-
-    m_player->cTransform->velocity = {0,0}; // reset player vel. before every frame to zero
-    
-    CInput playerInput;
-
-    // cancel directions that are canceling each other out
-    playerInput.up = (m_player->cInput->up && !m_player->cInput->down);
-    playerInput.down = (m_player->cInput->down && !m_player->cInput->up);
-    playerInput.left = (m_player->cInput->left && !m_player->cInput->right);
-    playerInput.right = (m_player->cInput->right && !m_player->cInput->left);
-
-    // prevent player from going out of bounds
-    if (m_player->cTransform->pos.x - m_player->cShape->circle.getRadius() <= 0)
+    // Player movement
+    if (m_player != nullptr)
     {
-        playerInput.left = false;
-    }
-    if (m_player->cTransform->pos.x + m_player->cShape->circle.getRadius() >= m_window.getSize().x)
-    {
-        playerInput.right = false;
-    }
-    if (m_player->cTransform->pos.y - m_player->cShape->circle.getRadius() <= 0)
-    {
-        playerInput.up = false;
-    }
-    if (m_player->cTransform->pos.y + m_player->cShape->circle.getRadius() >= m_window.getSize().y)
-    {
-        playerInput.down = false;
-    }
+        std::shared_ptr<CInput> playerCI = m_player->cInput;
+        std::shared_ptr<CTransform> playerCT = m_player->cTransform;
+        const float radius = m_player->cShape->circle.getRadius();
+        CInput actualMovementInput;
 
-    const int movementInputCount = playerInput.up + playerInput.down + playerInput.left + playerInput.right;
+        playerCT->velocity = {0,0}; // zero out player velocity
 
-    // player moving diagonally
-    if (movementInputCount == 2) 
-    {
-        const float componentSpeed = std::sqrt(m_playerConfig.S * 2);
-        if (playerInput.up) {
-            m_player->cTransform->velocity.y -= componentSpeed;
+        // Things to take into account when determining actual movement input:
+        // 1) Directions that are opposite of each other cancel each other (like up and down)
+        // 2) Player can not move out of bounds, so cancel movement that would move player out of bounds
+        actualMovementInput.up = (playerCI->up && !playerCI->down) && (playerCT->pos.y - radius >= 0);
+        actualMovementInput.down = (playerCI->down && !playerCI->up) && (playerCT->pos.y + radius <= m_window.getSize().y);
+        actualMovementInput.left = (playerCI->left && !playerCI->right) && (playerCT->pos.x - radius >= 0);
+        actualMovementInput.right = (playerCI->right && !playerCI->left) && (playerCT->pos.x + radius <= m_window.getSize().x);
+
+        if ((actualMovementInput.up || actualMovementInput.down) && (actualMovementInput.left || actualMovementInput.right)) // moving diagonally
+        {
+            // Moving diagonally should have same speed as moving horizontally or vertically
+
+            const float componentSpeed = std::sqrt(m_playerConfig.S * 2);
+
+            if (actualMovementInput.up) // up
+            {
+                playerCT->velocity.y -= componentSpeed;
+            }
+            else // down
+            {
+                playerCT->velocity.y += componentSpeed;
+            }
+
+            if (actualMovementInput.left) // left
+            {
+                playerCT->velocity.x -= componentSpeed;
+            }
+            else // right
+            {
+                playerCT->velocity.x += componentSpeed;
+            }
         }
-        if (playerInput.down) {
-            m_player->cTransform->velocity.y += componentSpeed;
+        else // moving horizontally or vertically
+        {
+            if (actualMovementInput.up) // moving up
+            {
+                playerCT->velocity.y -= m_playerConfig.S;
+            }
+            else if (actualMovementInput.down) // moving down
+            {
+                playerCT->velocity.y += m_playerConfig.S;
+            }
+            else if (actualMovementInput.left) // moving left
+            {
+                playerCT->velocity.x -= m_playerConfig.S;
+            }
+            else if (actualMovementInput.right) // moving right
+            {
+                playerCT->velocity.x += m_playerConfig.S;
+            }
         }
-        if (playerInput.left) {
-            m_player->cTransform->velocity.x -= componentSpeed;
-        }
-        if (playerInput.right) {
-            m_player->cTransform->velocity.x += componentSpeed;
-        }
-    }
-    // player moving horizontally or vertically
-    else if (movementInputCount == 1) 
-    {
-        if (playerInput.up) {
-            m_player->cTransform->velocity.y -= m_playerConfig.S;
-        } else if (playerInput.down) {
-            m_player->cTransform->velocity.y += m_playerConfig.S;
-        } else if (playerInput.left) {
-            m_player->cTransform->velocity.x -= m_playerConfig.S;
-        } else if (playerInput.right) {
-            m_player->cTransform->velocity.x += m_playerConfig.S;
-        }
+
+        // Move the player
+        playerCT->pos += playerCT->velocity;
     }
 
-    // move the player
-    m_player->cTransform->pos.x += m_player->cTransform->velocity.x; 
-    m_player->cTransform->pos.y += m_player->cTransform->velocity.y;
-
-    // enemy movement
+    // Enemy movement
     for (auto e : m_entities.getEntities("enemy")) 
     {
-        const float r = e->cShape->circle.getRadius();
+        // Enemies travel in straight directions, and bounce of the walls and other enemies
+
+        const float radius = e->cShape->circle.getRadius();
         Vec2& pos = e->cTransform->pos;
         Vec2& vel = e->cTransform->velocity;
 
-        // check if enemy is touching window walls
-        if (pos.x - r <= 0 || pos.x + r >= m_window.getSize().x)
+        // Enemies bounce off the walls (they shouldn't go outside window)
+        if (pos.x - radius <= 0 || pos.x + radius >= m_window.getSize().x)
         {
             vel.x *= -1;
         }
-        if (pos.y - r <= 0 || pos.y + r >= m_window.getSize().y)
+        if (pos.y - radius <= 0 || pos.y + radius >= m_window.getSize().y)
         {
             vel.y *= -1;
         }
 
-        pos.x += vel.x;
-        pos.y += vel.y;
+        // Move the enemy
+        pos += vel;
     }
 
-    // bullet movement
-    for (auto e : m_entities.getEntities("bullet")) 
+    // Bullet movement
+    for (auto b : m_entities.getEntities("bullet")) 
     {
-        Vec2& pos = e->cTransform->pos;
-        Vec2& vel = e->cTransform->velocity;
+        // Bullets travel in straight directions (they don't bounce of walls. they can go outside the window)
 
-        pos.x += vel.x;
-        pos.y += vel.y;
+        // Move the bullet
+        b->cTransform->pos += b->cTransform->velocity;
     }
 }
 
