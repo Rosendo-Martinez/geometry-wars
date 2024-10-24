@@ -360,12 +360,11 @@ void Game::sMovement()
     }
 }
 
+/**
+ * System for user input.
+ */
 void Game::sUserInput()
 {
-    // TODO: handle user input here
-    //          no movement logic
-    //          only set players input component data
-
     sf::Event event;
     while (m_window.pollEvent(event))
     {
@@ -373,61 +372,65 @@ void Game::sUserInput()
         {
             m_running = false;
         }
-
-        // Key pressed
-        if (event.type == sf::Event::KeyPressed)
+        else if (event.type == sf::Event::KeyPressed) 
         {
-            switch (event.key.code)
+            if (event.key.code == sf::Keyboard::Enter)
             {
-                case sf::Keyboard::Enter:
-                    m_startMenu = false;
-                    break;
-                case sf::Keyboard::P:
+                m_startMenu = false;
+            }
+            else if (event.key.code == sf::Keyboard::P)
+            {
+                if (!m_startMenu)
+                {
                     m_paused = !m_paused;
-                    break;
-                case sf::Keyboard::W:
-                    m_player->cInput->up = true;
-                    break;
-                case sf::Keyboard::A:
-                    m_player->cInput->left = true;
-                    break;
-                case sf::Keyboard::S:
-                    m_player->cInput->down = true;
-                    break;
-                case sf::Keyboard::D:
-                    m_player->cInput->right = true;
-                    break;
-                default: break;
+                }
             }
-        }
-
-        // Key released
-        if (event.type == sf::Event::KeyReleased)
-        {
-            switch (event.key.code)
+            else if (m_player != nullptr)
             {
-                case sf::Keyboard::W:
-                    m_player->cInput->up = false;
-                    break;
-                case sf::Keyboard::A:
-                    m_player->cInput->left = false;
-                    break;
-                case sf::Keyboard::S:
-                    m_player->cInput->down = false;
-                    break;
-                case sf::Keyboard::D:
-                    m_player->cInput->right = false;
-                    break;
-                default: break;
+                if (event.key.code == sf::Keyboard::W)
+                {
+                    m_player->cInput->up = true;
+                }
+                else if (event.key.code == sf::Keyboard::A)
+                {
+                    m_player->cInput->left = true;
+                }
+                else if (event.key.code == sf::Keyboard::S)
+                {
+                    m_player->cInput->down = true;
+                }
+                else if (event.key.code == sf::Keyboard::D)
+                {
+                    m_player->cInput->right = true;
+                }
             }
         }
-
-
-        if (event.type == sf::Event::MouseButtonPressed && !m_paused) 
+        else if (event.type == sf::Event::KeyReleased)
+        {
+            if (m_player != nullptr)
+            {
+                if (event.key.code == sf::Keyboard::W)
+                {
+                    m_player->cInput->up = false;
+                }
+                else if (event.key.code == sf::Keyboard::A)
+                {
+                    m_player->cInput->left = false;
+                }
+                else if (event.key.code == sf::Keyboard::S)
+                {
+                    m_player->cInput->down = false;
+                }
+                else if (event.key.code == sf::Keyboard::D)
+                {
+                    m_player->cInput->right = false;
+                }
+            }
+        }
+        else if (event.type == sf::Event::MouseButtonPressed && !m_paused && !m_startMenu) 
         {
             if (event.mouseButton.button == sf::Mouse::Left)
             {
-                // TODO: add cool down
                 spawnBullet(m_player, Vec2(event.mouseButton.x, event.mouseButton.y));
             }
             if (event.mouseButton.button == sf::Mouse::Right)
