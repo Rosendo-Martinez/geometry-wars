@@ -24,7 +24,9 @@ Game::Game()
     init();
 }
 
-
+/**
+ * Runs the main game loop.
+ */
 void Game::run()
 {
     // Spawn 1 enemy for start menu scene so that it bounces and moves around in the background
