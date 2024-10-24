@@ -122,56 +122,63 @@ void Game::init()
     spawnPlayer();
 }
 
-
+/**
+ * System for collision detection.
+ */
 void Game::sCollision()
 {
-    // bullet-enemy collision
+    // Bullet-enemy collision
     for (auto b : m_entities.getEntities("bullet"))
     {
         for (auto e : m_entities.getEntities("enemy"))
         {
-            // const bool isCollision = b->cTransform->pos.distSqr(e->cTransform->pos) < (b->cCollision->radius + e->cCollision->radius) * (b->cCollision->radius + e->cCollision->radius);
-            if (isOverlap(b->cTransform->pos, e->cTransform->pos, b->cCollision->radius, e->cCollision->radius))
+            if (isOverlap(b->cTransform->pos, e->cTransform->pos, b->cCollision->radius, e->cCollision->radius)) // collision
             {
-                // if is not small enemy
+                // Big enemies spawn smaller enemies
                 if (e->cLifespan == nullptr)
                 {
                     spawnSmallEnemies(e);
                 }
-                m_player->cScore->score += e->cScore->score;
+
+                if (m_player != nullptr)
+                {
+                    // Player scores points for killing enemy
+                    m_player->cScore->score += e->cScore->score;
+                }
+
                 b->destroy();
                 e->destroy();
+
                 break;
             }
         }
     }
 
-    // player-enemy collision
-    for (auto e : m_entities.getEntities("enemy"))
+    if (m_player != nullptr)
     {
-        // const bool isCollision = m_player->cTransform->pos.distSqr(e->cTransform->pos) < (m_player->cCollision->radius + e->cCollision->radius) * (m_player->cCollision->radius + e->cCollision->radius);
-        if (isOverlap(m_player->cTransform->pos, e->cTransform->pos, m_player->cCollision->radius, e->cCollision->radius))
+        // Player-enemy collision
+        for (auto e : m_entities.getEntities("enemy"))
         {
-            float mx = m_window.getSize().x / 2.0f;
-            float my = m_window.getSize().y / 2.0f;
+            if (isOverlap(m_player->cTransform->pos, e->cTransform->pos, m_player->cCollision->radius, e->cCollision->radius)) // collision
+            {
+                // For now, player just gets placed in the center of the screen after getting hit by enemy, player also losses score
+                m_player->cTransform->pos.x = m_window.getSize().x / 2.0f;
+                m_player->cTransform->pos.y = m_window.getSize().y / 2.0f;
+                m_player->cScore->score = 0;
 
-            m_player->cTransform->pos.x = mx;
-            m_player->cTransform->pos.y = my;
-            m_player->cScore->score = 0;
-            break;
+                break;
+            }
         }
     }
 
+    // Nuke-Enemy collision
     for (auto n : m_entities.getEntities("nuke"))
     {
-        // nuke effect only lasts first frame of being alive
+        // Nuke only works during its first frame (not the best way to do this, but it works)
         if (n->cLifespan->remaining == n->cLifespan->total)
         {
             for (auto e : m_entities.getEntities("enemy"))
             {
-                // Explosion --> big red ball of death of nuke
-                // Blast --> shockwave
-
                 // Enemy is in explosion if its center is inside the explosion radius
                 bool isInExplosion = isOverlap(e->cTransform->pos, n->cTransform->pos, m_nukeConfig.ER, 0);
                 // Enemy is in blast (shockwave) if its center is inside the blast (shockwave) radius
@@ -179,50 +186,66 @@ void Game::sCollision()
 
                 if (isInExplosion || (isInBlast && e->cLifespan != nullptr))
                 {
-                    m_player->cScore->score += e->cScore->score;
+                    // Any enemy in the explosion radius dies
+                    // Enemies with 'lifespan' die if they are in blast or explosion radius
+
+                    if (m_player != nullptr)
+                    {
+                        m_player->cScore->score += e->cScore->score;
+                    }
+
                     e->destroy();
-                } else if (isInBlast)
+                }
+                else if (isInBlast)
                 {
-                    float s = e->cTransform->velocity.length() * m_nukeConfig.BVM;
-                    Vec2 vel = e->cTransform->pos - n->cTransform->pos;
-                    vel.normalize();
-                    vel *= s;
+                    // A enemy in blast radius is given a 'lifespan' (i.e they will die after a certain amount of time passes),
+                    // their speed is multiplied by the blast speed multiplier (BVM) (i.e their given a speed boost),
+                    // and they are given a higher score value (i.e player gets more for killing these types of enemies)
+
+                    float newSpeed = e->cTransform->velocity.length() * m_nukeConfig.BVM;
+                    Vec2 newVelocity = e->cTransform->pos - n->cTransform->pos;
+                    newVelocity.normalize();
+                    newVelocity *= newSpeed;
 
                     e->cLifespan = std::make_shared<CLifespan>(m_nukeConfig.REL);
-                    e->cTransform->velocity = vel;
+                    e->cTransform->velocity = newVelocity;
                     e->cScore->score = m_enemyConfig.SSE;
                 }
             }
         }
     }
 
-    // for each e
-    for (auto e : m_entities.getEntities("enemy"))
+    // Enemy-enemy collision
+    for (auto e1 : m_entities.getEntities("enemy"))
     {
-        if (e->cLifespan != nullptr)
+        // Enemies with lifespans can not collide with other enemies (they are ghosts)
+        if (e1->cLifespan != nullptr)
         {
-            break;
+            continue;
         }
-        for (auto eOther : m_entities.getEntities("enemy"))
+
+        for (auto e2 : m_entities.getEntities("enemy"))
         {
-            if (e->id() == eOther->id() || eOther->cLifespan != nullptr)
+            // Enemies with lifespans can not collide with other enemies (they are ghosts)
+            if (e1->id() == e2->id() || e2->cLifespan != nullptr)
             {
                 continue;
             }
 
-            // bool isCollision = e->cTransform->pos.distSqr(eOther->cTransform->pos) < (e->cCollision->radius + eOther->cCollision->radius) * (e->cCollision->radius + eOther->cCollision->radius);
-
-            if (isOverlap(e->cTransform->pos, eOther->cTransform->pos, e->cCollision->radius, eOther->cCollision->radius))
+            if (isOverlap(e1->cTransform->pos, e2->cTransform->pos, e1->cCollision->radius, e2->cCollision->radius)) // collision
             {
-                Vec2 newDirection = e->cTransform->pos - eOther->cTransform->pos;
-                newDirection.normalize();
+                // Enemies that collide change direction and go in exact opposite directions of each other, but same speed as each started with
 
-                e->cTransform->velocity = newDirection * e->cTransform->velocity.length();
-                eOther->cTransform->velocity = newDirection * (eOther->cTransform->velocity.length() * -1);
+                Vec2 newDirectionForE1 = e1->cTransform->pos - e2->cTransform->pos;
+                newDirectionForE1.normalize();
 
-                float d = overlap(e->cTransform->pos, eOther->cTransform->pos, e->cCollision->radius, eOther->cCollision->radius)/2; 
-                e->cTransform->pos += e->cTransform->velocity * (d/e->cTransform->velocity.length());
-                eOther->cTransform->pos += eOther->cTransform->velocity * (d/eOther->cTransform->velocity.length());
+                e1->cTransform->velocity = newDirectionForE1 * e1->cTransform->velocity.length();
+                e2->cTransform->velocity = newDirectionForE1 * (e2->cTransform->velocity.length() * -1);
+
+                // Separate the two so that their is no overlap anymore
+                float halfOverlap = overlap(e1->cTransform->pos, e2->cTransform->pos, e1->cCollision->radius, e2->cCollision->radius)/2; 
+                e1->cTransform->pos += e1->cTransform->velocity * (halfOverlap/e1->cTransform->velocity.length());
+                e2->cTransform->pos += e2->cTransform->velocity * (halfOverlap/e2->cTransform->velocity.length());
             }
         }
     }       
