@@ -86,6 +86,7 @@ void Game::run()
             sUserInput();
             sMovement();
             sCollision();
+            sLifespan();
             sRender();
         }
         // Pause scene
