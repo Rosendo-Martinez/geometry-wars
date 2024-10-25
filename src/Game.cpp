@@ -394,7 +394,19 @@ void Game::sUserInput()
         }
         else if (m_endGameMenu)
         {
+            if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Enter)
+            {
+                m_endGameMenu = false;
 
+                spawnPlayer();
+
+                for (auto e : m_entities.getEntities("enemy"))
+                {
+                    e->destroy();
+                }
+
+                m_entities.update();
+            }
         }
         else if (m_paused)
         {
