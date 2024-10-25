@@ -227,6 +227,7 @@ void Game::sCollision()
                     e->cLifespan = std::make_shared<CLifespan>(m_nukeConfig.REL);
                     e->cTransform->velocity = newVelocity;
                     e->cScore->score = m_enemyConfig.SSE;
+                    e->cTransform->angularVel *= -5;
                 }
             }
         }
@@ -352,10 +353,12 @@ void Game::sMovement()
         if (pos.x - radius <= 0 || pos.x + radius >= m_window.getSize().x)
         {
             vel.x *= -1;
+            e->cTransform->angularVel *= -1;
         }
         if (pos.y - radius <= 0 || pos.y + radius >= m_window.getSize().y)
         {
             vel.y *= -1;
+            e->cTransform->angularVel *= -1;
         }
 
         // Move the enemy
@@ -526,7 +529,7 @@ void Game::sRender()
         {
             e->cShape->circle.setPosition(e->cTransform->pos.x, e->cTransform->pos.y);
 
-            e->cTransform->angle += 1.0f;
+            e->cTransform->angle += e->cTransform->angularVel;
             e->cShape->circle.setRotation(e->cTransform->angle);
 
             if (e->cLifespan != nullptr)
@@ -669,7 +672,7 @@ void Game::sRender()
         {
             e->cShape->circle.setPosition(e->cTransform->pos.x, e->cTransform->pos.y);
 
-            e->cTransform->angle += 1.0f;
+            e->cTransform->angle += e->cTransform->angularVel;
             e->cShape->circle.setRotation(e->cTransform->angle);
 
             if (e->cLifespan != nullptr)
@@ -695,7 +698,7 @@ void Game::sRender()
         for (auto e : m_entities.getEntities()) {
             e->cShape->circle.setPosition(e->cTransform->pos.x, e->cTransform->pos.y);
 
-            e->cTransform->angle += 1.0f;
+            e->cTransform->angle += e->cTransform->angularVel;
             e->cShape->circle.setRotation(e->cTransform->angle);
 
             if (e->cLifespan != nullptr)
