@@ -518,89 +518,6 @@ void Game::sRender()
 {
     m_window.clear();
 
-    for (auto e : m_entities.getEntities()) {
-        e->cShape->circle.setPosition(e->cTransform->pos.x, e->cTransform->pos.y);
-
-        e->cTransform->angle += 1.0f;
-        e->cShape->circle.setRotation(e->cTransform->angle);
-
-        if (e->cLifespan != nullptr)
-        {
-            const float lifespanPercent = ((float) e->cLifespan->remaining / (float) e->cLifespan->total);
-            const int alpha = 255 * lifespanPercent;
-
-            sf::Color fill = sf::Color(e->cShape->circle.getFillColor());
-            sf::Color outline = sf::Color(e->cShape->circle.getOutlineColor());
-            fill.a = alpha;
-            outline.a = alpha;
-
-            e->cShape->circle.setFillColor(fill);
-            e->cShape->circle.setOutlineColor(outline);
-        }
-
-        m_window.draw(e->cShape->circle);
-    }
-
-    if (m_player != nullptr)
-    {
-        std::ostringstream strs;
-        strs << "Score: " << m_player->cScore->score;
-        sf::Text score;
-        score.setFont(m_font);
-        score.setString(strs.str());
-        score.setCharacterSize(30);
-        score.setColor(sf::Color::Cyan);
-        score.setStyle(sf::Text::Bold);
-        m_window.draw(score);
-    }
-
-    sf::CircleShape nukeCoolDown;
-    int alpha = m_currentFrame - m_lastNukeTime >= m_nukeConfig.CDI ? 255 : 255 * 0.40;
-    sf::Color fill = sf::Color(m_nukeConfig.FR, m_nukeConfig.FG, m_nukeConfig.FB, alpha);
-    sf::Color outline = sf::Color(m_nukeConfig.OR, m_nukeConfig.OG, m_nukeConfig.OB, alpha);
-    float er = 10;
-    float br = er * m_nukeConfig.BR / m_nukeConfig.ER;
-    nukeCoolDown.setFillColor(fill);
-    nukeCoolDown.setOutlineColor(outline);
-    nukeCoolDown.setRadius(er);
-    nukeCoolDown.setOutlineThickness(br - er);
-    nukeCoolDown.setPointCount(m_nukeConfig.V);
-    nukeCoolDown.setPosition(15,50);
-    m_window.draw(nukeCoolDown);
-
-    if (m_paused)
-    {
-        float width = 25.f;
-        float height = 5.f * width;
-        float margin = 20.f;
-        sf::RectangleShape left;
-        sf::RectangleShape right;
-        sf::CircleShape circle;
-        sf::RectangleShape overlay;
-
-        left.setFillColor(sf::Color::White);
-        right.setFillColor(sf::Color::White);
-        circle.setFillColor(sf::Color(255, 255, 255, 0));
-        overlay.setFillColor(sf::Color(50, 50, 50, 120));
-        circle.setOutlineColor(sf::Color::White);
-        circle.setOutlineThickness(10);
-        circle.setPointCount(10);
-
-        left.setSize(sf::Vector2f(width,height));
-        right.setSize(sf::Vector2f(width,height));
-        overlay.setSize(sf::Vector2f(m_window.getSize().x, m_window.getSize().y));
-        circle.setRadius(height - 30);
-
-        left.setPosition(sf::Vector2f(m_window.getSize().x/2 - width - margin, m_window.getSize().y/2 - height/2));
-        right.setPosition(sf::Vector2f(m_window.getSize().x/2 + margin, m_window.getSize().y/2 - height/2));
-        circle.setPosition(sf::Vector2f(m_window.getSize().x/2 - circle.getRadius(), m_window.getSize().y/2 - circle.getRadius()));
-
-        m_window.draw(overlay);
-        m_window.draw(left);
-        m_window.draw(right);
-        m_window.draw(circle);
-    }
-
     if (m_startMenu)
     {
         m_window.clear();
@@ -745,6 +662,115 @@ void Game::sRender()
         m_window.draw(mainWeapon);
         m_window.draw(specialWeapon);
         m_window.draw(pause);
+    }
+    else if (m_endGameMenu)
+    {
+        for (auto e : m_entities.getEntities("enemy")) 
+        {
+            e->cShape->circle.setPosition(e->cTransform->pos.x, e->cTransform->pos.y);
+
+            e->cTransform->angle += 1.0f;
+            e->cShape->circle.setRotation(e->cTransform->angle);
+
+            if (e->cLifespan != nullptr)
+            {
+                const float lifespanPercent = ((float) e->cLifespan->remaining / (float) e->cLifespan->total);
+                const int alpha = 255 * lifespanPercent;
+
+                sf::Color fill = sf::Color(e->cShape->circle.getFillColor());
+                sf::Color outline = sf::Color(e->cShape->circle.getOutlineColor());
+                fill.a = alpha;
+                outline.a = alpha;
+
+                e->cShape->circle.setFillColor(fill);
+                e->cShape->circle.setOutlineColor(outline);
+            }
+
+            m_window.draw(e->cShape->circle);
+        }
+    }
+    else // in game
+    {
+        // Draw enemies and player
+        for (auto e : m_entities.getEntities()) {
+            e->cShape->circle.setPosition(e->cTransform->pos.x, e->cTransform->pos.y);
+
+            e->cTransform->angle += 1.0f;
+            e->cShape->circle.setRotation(e->cTransform->angle);
+
+            if (e->cLifespan != nullptr)
+            {
+                const float lifespanPercent = ((float) e->cLifespan->remaining / (float) e->cLifespan->total);
+                const int alpha = 255 * lifespanPercent;
+
+                sf::Color fill = sf::Color(e->cShape->circle.getFillColor());
+                sf::Color outline = sf::Color(e->cShape->circle.getOutlineColor());
+                fill.a = alpha;
+                outline.a = alpha;
+
+                e->cShape->circle.setFillColor(fill);
+                e->cShape->circle.setOutlineColor(outline);
+            }
+
+            m_window.draw(e->cShape->circle);
+        }
+
+        std::ostringstream strs;
+        strs << "Score: " << m_player->cScore->score;
+        sf::Text score;
+        score.setFont(m_font);
+        score.setString(strs.str());
+        score.setCharacterSize(30);
+        score.setColor(sf::Color::Cyan);
+        score.setStyle(sf::Text::Bold);
+        m_window.draw(score);
+
+        sf::CircleShape nukeCoolDown;
+        int alpha = m_currentFrame - m_lastNukeTime >= m_nukeConfig.CDI ? 255 : 255 * 0.40;
+        sf::Color fill = sf::Color(m_nukeConfig.FR, m_nukeConfig.FG, m_nukeConfig.FB, alpha);
+        sf::Color outline = sf::Color(m_nukeConfig.OR, m_nukeConfig.OG, m_nukeConfig.OB, alpha);
+        float er = 10;
+        float br = er * m_nukeConfig.BR / m_nukeConfig.ER;
+        nukeCoolDown.setFillColor(fill);
+        nukeCoolDown.setOutlineColor(outline);
+        nukeCoolDown.setRadius(er);
+        nukeCoolDown.setOutlineThickness(br - er);
+        nukeCoolDown.setPointCount(m_nukeConfig.V);
+        nukeCoolDown.setPosition(15,50);
+        m_window.draw(nukeCoolDown);
+
+        if (m_paused)
+        {
+            float width = 25.f;
+            float height = 5.f * width;
+            float margin = 20.f;
+            sf::RectangleShape left;
+            sf::RectangleShape right;
+            sf::CircleShape circle;
+            sf::RectangleShape overlay;
+
+            left.setFillColor(sf::Color::White);
+            right.setFillColor(sf::Color::White);
+            circle.setFillColor(sf::Color(255, 255, 255, 0));
+            overlay.setFillColor(sf::Color(50, 50, 50, 120));
+            circle.setOutlineColor(sf::Color::White);
+            circle.setOutlineThickness(10);
+            circle.setPointCount(10);
+
+            left.setSize(sf::Vector2f(width,height));
+            right.setSize(sf::Vector2f(width,height));
+            overlay.setSize(sf::Vector2f(m_window.getSize().x, m_window.getSize().y));
+            circle.setRadius(height - 30);
+
+            left.setPosition(sf::Vector2f(m_window.getSize().x/2 - width - margin, m_window.getSize().y/2 - height/2));
+            right.setPosition(sf::Vector2f(m_window.getSize().x/2 + margin, m_window.getSize().y/2 - height/2));
+            circle.setPosition(sf::Vector2f(m_window.getSize().x/2 - circle.getRadius(), m_window.getSize().y/2 - circle.getRadius()));
+
+            m_window.draw(overlay);
+            m_window.draw(left);
+            m_window.draw(right);
+            m_window.draw(circle);
+        }
     }
 
     m_window.display();
