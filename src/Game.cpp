@@ -400,14 +400,14 @@ void Game::sUserInput()
             break;
         }
 
-        if (m_startMenu)
+        if (m_startMenu) // Start menu
         {
             if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Enter)
             {
                 m_startMenu = false;
             }
         }
-        else if (m_endGameMenu)
+        else if (m_endGameMenu) // Game over menu
         {
             if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Enter)
             {
@@ -444,7 +444,7 @@ void Game::sUserInput()
                 spawnPlayer();
             }
         }
-        else if (m_paused)
+        else if (m_paused) // Paused
         {
             if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::P)
             {
@@ -489,7 +489,7 @@ void Game::sUserInput()
                 }
             }
         }
-        else // in game 
+        else // In game 
         {
             if (event.type == sf::Event::KeyPressed)
             {
@@ -551,38 +551,22 @@ void Game::sUserInput()
     }
 }
 
+/**
+ * System for lifespan.
+ */
 void Game::sLifespan()
 {
-    // bullets
-    for (auto b : m_entities.getEntities("bullet"))
-    {
-        if (b->cLifespan->remaining > 0) {
-            b->cLifespan->remaining--;
-        } else {
-            b->destroy();
-        }
-    }
-
-    // small enemies
-    for (auto e : m_entities.getEntities("enemy"))
+    for (auto e : m_entities.getEntities())
     {
         if (e->cLifespan != nullptr)
         {
-            if (e->cLifespan->remaining > 0) {
+            if (e->cLifespan->remaining > 0) 
+            {
                 e->cLifespan->remaining--;
-            } else {
+            } else 
+            {
                 e->destroy();
             }
-        }
-    }
-
-    // nukes
-    for (auto n : m_entities.getEntities("nuke"))
-    {
-        if (n->cLifespan->remaining > 0) {
-            n->cLifespan->remaining--;
-        } else {
-            n->destroy();
         }
     }
 }
