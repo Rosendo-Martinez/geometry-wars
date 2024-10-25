@@ -382,23 +382,36 @@ void Game::sUserInput()
         if (event.type == sf::Event::Closed)
         {
             m_running = false;
+            break;
         }
-        else if (event.type == sf::Event::KeyPressed) 
+
+        if (m_startMenu)
         {
-            if (event.key.code == sf::Keyboard::Enter)
+            if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Enter)
             {
                 m_startMenu = false;
             }
-            else if (event.key.code == sf::Keyboard::P)
+        }
+        else if (m_endGameMenu)
+        {
+
+        }
+        else if (m_paused)
+        {
+            if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::P)
             {
-                if (!m_startMenu)
-                {
-                    m_paused = !m_paused;
-                }
+                m_paused = false;
             }
-            else if (m_player != nullptr)
+        }
+        else // in game 
+        {
+            if (event.type == sf::Event::KeyPressed)
             {
-                if (event.key.code == sf::Keyboard::W)
+                if (event.key.code == sf::Keyboard::P)
+                {
+                    m_paused = true;
+                }
+                else if (event.key.code == sf::Keyboard::W)
                 {
                     m_player->cInput->up = true;
                 }
@@ -415,10 +428,7 @@ void Game::sUserInput()
                     m_player->cInput->right = true;
                 }
             }
-        }
-        else if (event.type == sf::Event::KeyReleased)
-        {
-            if (m_player != nullptr)
+            else if (event.type == sf::Event::KeyReleased)
             {
                 if (event.key.code == sf::Keyboard::W)
                 {
@@ -437,18 +447,18 @@ void Game::sUserInput()
                     m_player->cInput->right = false;
                 }
             }
-        }
-        else if (event.type == sf::Event::MouseButtonPressed && !m_paused && !m_startMenu) 
-        {
-            if (event.mouseButton.button == sf::Mouse::Left)
+            else if (event.type == sf::Event::MouseButtonPressed) 
             {
-                spawnBullet(m_player, Vec2(event.mouseButton.x, event.mouseButton.y));
-            }
-            if (event.mouseButton.button == sf::Mouse::Right)
-            {
-                if (m_currentFrame - m_lastNukeTime >= m_nukeConfig.CDI) {
-                    spawnSpecialWeapon(m_player);
-                    m_lastNukeTime = m_currentFrame;
+                if (event.mouseButton.button == sf::Mouse::Left)
+                {
+                    spawnBullet(m_player, Vec2(event.mouseButton.x, event.mouseButton.y));
+                }
+                if (event.mouseButton.button == sf::Mouse::Right)
+                {
+                    if (m_currentFrame - m_lastNukeTime >= m_nukeConfig.CDI) {
+                        spawnSpecialWeapon(m_player);
+                        m_lastNukeTime = m_currentFrame;
+                    }
                 }
             }
         }
