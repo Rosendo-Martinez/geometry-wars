@@ -33,6 +33,7 @@ private:
     float               m_startMenuInstructionAlphaPercent = 1;
     int                 m_highScore             = 0;
     int                 m_gameScore             = 0;
+    bool                m_isNewHighScore        = false;
 
     std::shared_ptr<Entity> m_player;
 
