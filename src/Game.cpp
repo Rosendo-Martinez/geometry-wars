@@ -849,7 +849,7 @@ void Game::sRender()
             if (e->cLifespan != nullptr)
             {
                 const float lifespanPercent = ((float) e->cLifespan->remaining / (float) e->cLifespan->total);
-                const int alpha = 255 * lifespanPercent;
+                const int alpha = 255 * lifespanPercent > 80 ? 255 * lifespanPercent : 80;
 
                 sf::Color fill = sf::Color(e->cShape->circle.getFillColor());
                 sf::Color outline = sf::Color(e->cShape->circle.getOutlineColor());
