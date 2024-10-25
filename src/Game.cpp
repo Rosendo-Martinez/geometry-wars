@@ -187,6 +187,8 @@ void Game::sCollision()
                     std::cout << "New high score: " << m_highScore << "\n";
                 }
 
+                m_gameScore = m_player->cScore->score;
+                std::cout << "Game score: " << m_gameScore << "\n";
                 m_player->destroy();
                 m_player = nullptr;
 
@@ -698,6 +700,8 @@ void Game::sRender()
 
             m_window.draw(e->cShape->circle);
         }
+
+
     }
     else // in game
     {
