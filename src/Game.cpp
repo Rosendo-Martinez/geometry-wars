@@ -422,6 +422,27 @@ void Game::sUserInput()
 
                 m_entities.update();
             }
+            else if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::BackSpace)
+            {
+                m_endGameMenu = false;
+                m_startMenu = true;
+                m_paused = false;
+
+                m_highScore = 0;
+                m_diffNewHighScorePrevHighScore = 0;
+                m_isNewHighScore = false;
+                m_currentFrame = 0;
+                m_lastEnemySpawnTime = 0;
+                m_lastNukeTime = 0;
+
+                for (auto e : m_entities.getEntities("enemy"))
+                {
+                    e->destroy();
+                }
+
+                spawnEnemy();
+                spawnPlayer();
+            }
         }
         else if (m_paused)
         {
