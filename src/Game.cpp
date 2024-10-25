@@ -792,6 +792,15 @@ void Game::sRender()
         highestScore.setPosition(sf::Vector2f(10,10));
         m_window.draw(highestScore);
 
+        sf::Text returnToStartMenu;
+        returnToStartMenu.setColor(sf::Color::White);
+        returnToStartMenu.setString("Press backspace to go to start menu");
+        returnToStartMenu.setFont(m_font);
+        returnToStartMenu.setCharacterSize(12);
+        returnToStartMenu.setOrigin(sf::Vector2f(returnToStartMenu.getLocalBounds().left, returnToStartMenu.getLocalBounds().top));
+        returnToStartMenu.setPosition(sf::Vector2f(m_window.getSize().x - returnToStartMenu.getLocalBounds().width - 10, 10));
+        m_window.draw(returnToStartMenu);
+
         std::ostringstream ss2;
         sf::Text gameScore;
         if (m_isNewHighScore)
