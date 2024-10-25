@@ -701,6 +701,55 @@ void Game::sRender()
             m_window.draw(e->cShape->circle);
         }
 
+        sf::RectangleShape overlay;
+        overlay.setSize(sf::Vector2f(m_window.getSize().x, m_window.getSize().y));
+        overlay.setFillColor(sf::Color(50, 50, 50, 120));
+        m_window.draw(overlay);
+
+        std::ostringstream ss;
+        ss << "High score: " << m_highScore;
+
+        sf::Text highestScore;
+        highestScore.setColor(sf::Color::White);
+        highestScore.setString(ss.str());
+        highestScore.setFont(m_font);
+        highestScore.setCharacterSize(12);
+        highestScore.setOrigin(sf::Vector2f(highestScore.getLocalBounds().left, highestScore.getLocalBounds().top));
+        highestScore.setPosition(sf::Vector2f(10,10));
+        m_window.draw(highestScore);
+
+        std::ostringstream ss2;
+        ss2 << "Score: " << m_gameScore;
+
+        sf::Text gameScore;
+        gameScore.setColor(sf::Color::Cyan);
+        gameScore.setString(ss2.str());
+        gameScore.setFont(m_font);
+        gameScore.setCharacterSize(50);
+        gameScore.setOrigin(sf::Vector2f(gameScore.getLocalBounds().left, gameScore.getLocalBounds().top));
+        gameScore.setStyle(sf::Text::Underlined);
+        gameScore.setPosition(sf::Vector2f(m_window.getSize().x/2 - gameScore.getLocalBounds().width/2, m_window.getSize().y/2 - gameScore.getLocalBounds().height/2));
+        m_window.draw(gameScore);
+
+
+        sf::Text enterGame;
+        float margin = 30;
+        enterGame.setFont(m_font);
+        enterGame.setString("press enter to play again");
+        enterGame.setCharacterSize(16);
+        enterGame.setColor(sf::Color(255, 255, 255, 255*m_startMenuInstructionAlphaPercent));
+        m_startMenuInstructionAlphaPercent -= 0.01;
+        if (m_startMenuInstructionAlphaPercent < 0)
+        {
+            m_startMenuInstructionAlphaPercent = 1;
+        }
+        
+        enterGame.setOrigin(sf::Vector2f(enterGame.getLocalBounds().left, enterGame.getLocalBounds().top));
+
+        enterGame.setPosition(sf::Vector2f(m_window.getSize().x/2 - enterGame.getLocalBounds().width/2, gameScore.getPosition().y + gameScore.getLocalBounds().height + margin));
+
+        m_window.draw(enterGame);
+
 
     }
     else // in game
