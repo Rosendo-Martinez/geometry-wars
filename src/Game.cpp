@@ -180,6 +180,13 @@ void Game::sCollision()
                 // m_player->cTransform->pos.y = m_window.getSize().y / 2.0f;
                 // m_player->cScore->score = 0;
                 m_endGameMenu = true;
+
+                if (m_player->cScore->score > m_highScore)
+                {
+                    m_highScore = m_player->cScore->score;
+                    std::cout << "New high score: " << m_highScore << "\n";
+                }
+
                 m_player->destroy();
                 m_player = nullptr;
 

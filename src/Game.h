@@ -23,7 +23,6 @@ private:
     EnemyConfig         m_enemyConfig;
     BulletConfig        m_bulletConfig;
     NukeConfig          m_nukeConfig;
-    int                 m_score                 = 0;
     int                 m_currentFrame          = 0;
     int                 m_lastEnemySpawnTime    = 0;
     int                 m_lastNukeTime          = 0;
@@ -31,7 +30,8 @@ private:
     bool                m_running               = true;
     bool                m_startMenu             = true;
     bool                m_endGameMenu           = false;
-    float                m_startMenuInstructionAlphaPercent = 1;
+    float               m_startMenuInstructionAlphaPercent = 1;
+    int                 m_highScore             = 0;
 
     std::shared_ptr<Entity> m_player;
 
