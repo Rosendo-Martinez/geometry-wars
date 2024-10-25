@@ -887,6 +887,16 @@ void Game::sRender()
         nukeCoolDown.setPosition(15,50);
         m_window.draw(nukeCoolDown);
 
+        // no spawn zone
+        // draw a circle with radius of no spawn zone on player
+        // const float noSpawnZoneRadius = m_player->cCollision->radius * 3;
+        // sf::CircleShape noSpawnZone;
+        // noSpawnZone.setFillColor(sf::Color(255, 0, 0, 100));
+        // noSpawnZone.setRadius(noSpawnZoneRadius);
+        // noSpawnZone.setOrigin(sf::Vector2f(noSpawnZoneRadius, noSpawnZoneRadius));
+        // noSpawnZone.setPosition(sf::Vector2f(m_player->cTransform->pos.x, m_player->cTransform->pos.y));
+        // m_window.draw(noSpawnZone);
+
         if (m_paused)
         {
             float width = 25.f;
@@ -1030,9 +1040,30 @@ void Game::spawnEnemy()
     // e->cShape = std::make_shared<CShape>(20.f, 3, sf::Color::Magenta, sf::Color::Red, 5.f);
     auto entity = m_entities.addEntity("enemy");
 
-    
-    const float ex = randFromRange(m_enemyConfig.SR, m_window.getSize().x - m_enemyConfig.SR);
-    const float ey = randFromRange(m_enemyConfig.SR, m_window.getSize().y - m_enemyConfig.SR);
+    float ex;
+    float ey;
+
+    if (m_player != nullptr && !m_startMenu)
+    {
+        float reroll = true;
+        const float noSpawnZoneRadius = m_player->cCollision->radius * 3;
+        while (reroll)
+        {
+            ex = randFromRange(m_enemyConfig.SR, m_window.getSize().x - m_enemyConfig.SR);
+            ey = randFromRange(m_enemyConfig.SR, m_window.getSize().y - m_enemyConfig.SR);
+            
+            if (!isOverlap(m_player->cTransform->pos, Vec2(ex,ey), noSpawnZoneRadius, m_enemyConfig.SR))
+            {
+                reroll = false;
+            }
+        }
+    }
+    else
+    {
+        ex = randFromRange(m_enemyConfig.SR, m_window.getSize().x - m_enemyConfig.SR);
+        ey = randFromRange(m_enemyConfig.SR, m_window.getSize().y - m_enemyConfig.SR);
+    }
+
     const float componentSpeed = std::sqrt(randFromRange(m_enemyConfig.SMIN, m_enemyConfig.SMAX) * 2);
     const int velXSign = std::rand() % 2 == 0 ? 1 : -1;
     const int velYSign = std::rand() % 2 == 0 ? 1 : -1;
