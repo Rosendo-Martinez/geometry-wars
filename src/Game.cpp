@@ -727,9 +727,18 @@ void Game::sRender()
         gameScore.setFont(m_font);
         gameScore.setCharacterSize(50);
         gameScore.setOrigin(sf::Vector2f(gameScore.getLocalBounds().left, gameScore.getLocalBounds().top));
-        gameScore.setStyle(sf::Text::Underlined);
+        // gameScore.setStyle(sf::Text::Underlined);
         gameScore.setPosition(sf::Vector2f(m_window.getSize().x/2 - gameScore.getLocalBounds().width/2, m_window.getSize().y/2 - gameScore.getLocalBounds().height/2));
         m_window.draw(gameScore);
+
+        // I want a line that is bigger that the underline. So I should use a line insstead.
+        // Lets have it be 75% of the screen. It will be right under the title.
+        const sf::Vector2f lineSize(m_window.getSize().x, 1);
+        sf::RectangleShape line(lineSize);
+        line.setFillColor(sf::Color::Cyan);
+        line.setOrigin(sf::Vector2f(lineSize.x/2, lineSize.y/2));
+        line.setPosition(sf::Vector2f(m_window.getSize().x/2, gameScore.getPosition().y + gameScore.getLocalBounds().height + lineSize.y/2 + 8));
+        m_window.draw(line);
 
 
         sf::Text enterGame;
