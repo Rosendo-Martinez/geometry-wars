@@ -34,6 +34,7 @@ private:
     int                 m_highScore             = 0;
     int                 m_gameScore             = 0;
     bool                m_isNewHighScore        = false;
+    int                 m_diffNewHighScorePrevHighScore = 0;
 
     std::shared_ptr<Entity> m_player;
 

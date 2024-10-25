@@ -183,6 +183,7 @@ void Game::sCollision()
 
                 if (m_player->cScore->score > m_highScore)
                 {
+                    m_diffNewHighScorePrevHighScore = m_player->cScore->score - m_highScore;
                     m_highScore = m_player->cScore->score;
                     m_isNewHighScore = true;
                     std::cout << "New high score: " << m_highScore << "\n";
@@ -707,19 +708,23 @@ void Game::sRender()
         overlay.setFillColor(sf::Color(50, 50, 50, 120));
         m_window.draw(overlay);
 
+        std::ostringstream ss;
+        sf::Text highestScore;
         if (!m_isNewHighScore)
         {
-            std::ostringstream ss;
-            ss << "High score: " << m_highScore;
-            sf::Text highestScore;
-            highestScore.setColor(sf::Color::White);
-            highestScore.setString(ss.str());
-            highestScore.setFont(m_font);
-            highestScore.setCharacterSize(12);
-            highestScore.setOrigin(sf::Vector2f(highestScore.getLocalBounds().left, highestScore.getLocalBounds().top));
-            highestScore.setPosition(sf::Vector2f(10,10));
-            m_window.draw(highestScore);
+            ss << "High score:" << m_highScore;
         }
+        else
+        {
+            ss << "Previous High Score:  " << m_highScore - m_diffNewHighScorePrevHighScore << "  (+" << m_diffNewHighScorePrevHighScore << ")"; 
+        }
+        highestScore.setColor(sf::Color::White);
+        highestScore.setString(ss.str());
+        highestScore.setFont(m_font);
+        highestScore.setCharacterSize(12);
+        highestScore.setOrigin(sf::Vector2f(highestScore.getLocalBounds().left, highestScore.getLocalBounds().top));
+        highestScore.setPosition(sf::Vector2f(10,10));
+        m_window.draw(highestScore);
 
         std::ostringstream ss2;
         sf::Text gameScore;
