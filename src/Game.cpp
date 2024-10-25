@@ -556,6 +556,8 @@ void Game::sUserInput()
  */
 void Game::sLifespan()
 {
+    // Entities with lifespans will die once their lifespan is over.
+
     for (auto e : m_entities.getEntities())
     {
         if (e->cLifespan != nullptr)
@@ -571,6 +573,9 @@ void Game::sLifespan()
     }
 }
 
+/**
+ * System for rendering.
+ */
 void Game::sRender()
 {
     m_window.clear();
