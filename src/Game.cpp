@@ -429,6 +429,44 @@ void Game::sUserInput()
             {
                 m_paused = false;
             }
+            else if (event.type == sf::Event::KeyPressed)
+            {
+                if (event.key.code == sf::Keyboard::W)
+                {
+                    m_player->cInput->up = true;
+                }
+                else if (event.key.code == sf::Keyboard::A)
+                {
+                    m_player->cInput->left = true;
+                }
+                else if (event.key.code == sf::Keyboard::S)
+                {
+                    m_player->cInput->down = true;
+                }
+                else if (event.key.code == sf::Keyboard::D)
+                {
+                    m_player->cInput->right = true;
+                }
+            }
+            else if (event.type == sf::Event::KeyReleased)
+            {
+                if (event.key.code == sf::Keyboard::W)
+                {
+                    m_player->cInput->up = false;
+                }
+                else if (event.key.code == sf::Keyboard::A)
+                {
+                    m_player->cInput->left = false;
+                }
+                else if (event.key.code == sf::Keyboard::S)
+                {
+                    m_player->cInput->down = false;
+                }
+                else if (event.key.code == sf::Keyboard::D)
+                {
+                    m_player->cInput->right = false;
+                }
+            }
         }
         else // in game 
         {
