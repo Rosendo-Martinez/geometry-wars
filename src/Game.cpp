@@ -577,7 +577,7 @@ void Game::sRender()
         title.setString("Geometry Wars");
         title.setCharacterSize(50);
         title.setColor(sf::Color::Cyan);
-        title.setStyle(sf::Text::Bold | sf::Text::Underlined);
+        // title.setStyle(sf::Text::Bold | sf::Text::Underlined);
 
         title.setOrigin(sf::Vector2f(title.getLocalBounds().left, title.getLocalBounds().top));
 
@@ -586,6 +586,13 @@ void Game::sRender()
         title.setPosition(sf::Vector2f(m_window.getSize().x/2 - title.getLocalBounds().width/2, m_window.getSize().y/2 - title.getLocalBounds().height/2));
 
         m_window.draw(title);
+
+        const sf::Vector2f lineSize(m_window.getSize().x, 1);
+        sf::RectangleShape line(lineSize);
+        line.setFillColor(sf::Color::Cyan);
+        line.setOrigin(sf::Vector2f(lineSize.x/2, lineSize.y/2));
+        line.setPosition(sf::Vector2f(m_window.getSize().x/2, title.getPosition().y + title.getLocalBounds().height + lineSize.y/2 + 8));
+        m_window.draw(line);
 
         sf::Text enterGame;
         float margin = 30;
