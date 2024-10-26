@@ -67,7 +67,6 @@ void Game::run()
 {
     // Spawn 1 enemy for start menu scene so that it bounces and moves around in the background
     spawnEnemy();
-    // m_entities.update();
 
     // While game is running
     while (m_running)
@@ -175,10 +174,6 @@ void Game::sCollision()
         {
             if (isOverlap(m_player->cTransform->pos, e->cTransform->pos, m_player->cCollision->radius, e->cCollision->radius)) // collision
             {
-                // // For now, player just gets placed in the center of the screen after getting hit by enemy, player also losses score
-                // m_player->cTransform->pos.x = m_window.getSize().x / 2.0f;
-                // m_player->cTransform->pos.y = m_window.getSize().y / 2.0f;
-                // m_player->cScore->score = 0;
                 m_endGameMenu = true;
 
                 if (m_player->cScore->score > m_highScore)
@@ -186,11 +181,9 @@ void Game::sCollision()
                     m_diffNewHighScorePrevHighScore = m_player->cScore->score - m_highScore;
                     m_highScore = m_player->cScore->score;
                     m_isNewHighScore = true;
-                    std::cout << "New high score: " << m_highScore << "\n";
                 }
 
                 m_gameScore = m_player->cScore->score;
-                std::cout << "Game score: " << m_gameScore << "\n";
                 m_player->destroy();
                 m_player = nullptr;
 
