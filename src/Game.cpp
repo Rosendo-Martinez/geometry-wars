@@ -860,55 +860,65 @@ void Game::sRender()
     }
     else // in game
     {
-        // Draw enemies and player
-        for (auto e : m_entities.getEntities()) {
-            e->cShape->circle.setPosition(e->cTransform->pos.x, e->cTransform->pos.y);
+        // Draw all entities (player, enemies, bullets, and nukes)
+        for (auto e : m_entities.getEntities())
+        {
+            std::shared_ptr<CTransform> transform = e->cTransform;
+            std::shared_ptr<CShape> shape = e->cShape;
+            std::shared_ptr<CLifespan> lifespan = e->cLifespan;
 
-            e->cTransform->angle += e->cTransform->angularVel;
-            e->cShape->circle.setRotation(e->cTransform->angle);
+            transform->angle += transform->angularVel;
+            shape->circle.setPosition(transform->pos.x, transform->pos.y);
+            shape->circle.setRotation(transform->angle);
 
-            if (e->cLifespan != nullptr)
+            if (lifespan != nullptr)
             {
-                const float lifespanPercent = ((float) e->cLifespan->remaining / (float) e->cLifespan->total);
-                const int alpha = 255 * lifespanPercent > 80 ? 255 * lifespanPercent : 80;
+                // Entities (enemies, bullets, and nukes) with lifespans fade as their lifespan shrinks
 
-                sf::Color fill = sf::Color(e->cShape->circle.getFillColor());
-                sf::Color outline = sf::Color(e->cShape->circle.getOutlineColor());
-                fill.a = alpha;
-                outline.a = alpha;
+                const int MAX_ALPHA = 255;
+                sf::Color updatedFill = shape->circle.getFillColor();
+                sf::Color updatedOutline = shape->circle.getOutlineColor();
 
-                e->cShape->circle.setFillColor(fill);
-                e->cShape->circle.setOutlineColor(outline);
+                // Prevents enemies from fading too much and becoming invisible yet still alive
+                const int alpha = MAX_ALPHA * ((float) lifespan->remaining / (float) lifespan->total) > 80 ? MAX_ALPHA * ((float) lifespan->remaining / (float) lifespan->total) : 80;
+
+                updatedFill.a = alpha;
+                updatedOutline.a = alpha;
+
+                shape->circle.setFillColor(updatedFill);
+                shape->circle.setOutlineColor(updatedOutline);
             }
 
-            m_window.draw(e->cShape->circle);
+            m_window.draw(shape->circle);
         }
 
-        std::ostringstream strs;
-        strs << "Score: " << m_player->cScore->score;
+        // Show the player's current score
+        std::ostringstream currentScoreSS;
+        currentScoreSS << "Score: " << m_player->cScore->score;
         sf::Text score;
         score.setFont(m_font);
-        score.setString(strs.str());
+        score.setString(currentScoreSS.str());
         score.setCharacterSize(30);
         score.setColor(sf::Color::Cyan);
-        score.setStyle(sf::Text::Bold);
         m_window.draw(score);
 
-        sf::CircleShape nukeCoolDown;
+        // The special weapon (nuke) cool down indicator (faded when its not available, its a miniature version of actual nuke)
+        sf::CircleShape nukeCoolDownIndicator;
         int alpha = m_currentFrame - m_lastNukeTime >= m_nukeConfig.CDI ? 255 : 255 * 0.40;
         sf::Color fill = sf::Color(m_nukeConfig.FR, m_nukeConfig.FG, m_nukeConfig.FB, alpha);
         sf::Color outline = sf::Color(m_nukeConfig.OR, m_nukeConfig.OG, m_nukeConfig.OB, alpha);
-        float er = 10;
-        float br = er * m_nukeConfig.BR / m_nukeConfig.ER;
-        nukeCoolDown.setFillColor(fill);
-        nukeCoolDown.setOutlineColor(outline);
-        nukeCoolDown.setRadius(er);
-        nukeCoolDown.setOutlineThickness(br - er);
-        nukeCoolDown.setPointCount(m_nukeConfig.V);
-        nukeCoolDown.setPosition(15,50);
-        m_window.draw(nukeCoolDown);
+        // Miniature version w/ same proportions
+        float explosionRadius = 10;
+        float blastRadius = explosionRadius * m_nukeConfig.BR / m_nukeConfig.ER;
+        nukeCoolDownIndicator.setFillColor(fill);
+        nukeCoolDownIndicator.setOutlineColor(outline);
+        nukeCoolDownIndicator.setRadius(explosionRadius);
+        nukeCoolDownIndicator.setOutlineThickness(blastRadius - explosionRadius);
+        nukeCoolDownIndicator.setPointCount(m_nukeConfig.V);
+        nukeCoolDownIndicator.setPosition(15,50);
+        m_window.draw(nukeCoolDownIndicator);
 
-        // no spawn zone
+        // no spawn zone around player (for debugging)
         // draw a circle with radius of no spawn zone on player
         // const float noSpawnZoneRadius = m_player->cCollision->radius * 3;
         // sf::CircleShape noSpawnZone;
@@ -918,37 +928,39 @@ void Game::sRender()
         // noSpawnZone.setPosition(sf::Vector2f(m_player->cTransform->pos.x, m_player->cTransform->pos.y));
         // m_window.draw(noSpawnZone);
 
-        if (m_paused)
+        if (m_paused) // paused (just renders an overlay over the in-game scene)
         {
+            // Draw overlay, and pause symbol
+
             float width = 25.f;
             float height = 5.f * width;
             float margin = 20.f;
-            sf::RectangleShape left;
-            sf::RectangleShape right;
-            sf::CircleShape circle;
+            sf::RectangleShape leftBar;
+            sf::RectangleShape rightBar;
+            sf::CircleShape circleAroundBars;
             sf::RectangleShape overlay;
 
-            left.setFillColor(sf::Color::White);
-            right.setFillColor(sf::Color::White);
-            circle.setFillColor(sf::Color(255, 255, 255, 0));
+            leftBar.setFillColor(sf::Color::White);
+            rightBar.setFillColor(sf::Color::White);
+            circleAroundBars.setFillColor(sf::Color(255, 255, 255, 0));
             overlay.setFillColor(sf::Color(50, 50, 50, 120));
-            circle.setOutlineColor(sf::Color::White);
-            circle.setOutlineThickness(10);
-            circle.setPointCount(10);
+            circleAroundBars.setOutlineColor(sf::Color::White);
+            circleAroundBars.setOutlineThickness(10);
+            circleAroundBars.setPointCount(10);
 
-            left.setSize(sf::Vector2f(width,height));
-            right.setSize(sf::Vector2f(width,height));
-            overlay.setSize(sf::Vector2f(m_window.getSize().x, m_window.getSize().y));
-            circle.setRadius(height - 30);
+            leftBar.setSize(sf::Vector2f(width,height));
+            rightBar.setSize(sf::Vector2f(width,height));
+            overlay.setSize(sf::Vector2f(WINDOW_SIZE.x, WINDOW_SIZE.y));
+            circleAroundBars.setRadius(height - 30);
 
-            left.setPosition(sf::Vector2f(m_window.getSize().x/2 - width - margin, m_window.getSize().y/2 - height/2));
-            right.setPosition(sf::Vector2f(m_window.getSize().x/2 + margin, m_window.getSize().y/2 - height/2));
-            circle.setPosition(sf::Vector2f(m_window.getSize().x/2 - circle.getRadius(), m_window.getSize().y/2 - circle.getRadius()));
+            leftBar.setPosition(sf::Vector2f(WINDOW_SIZE.x/2 - width - margin, WINDOW_SIZE.y/2 - height/2));
+            rightBar.setPosition(sf::Vector2f(WINDOW_SIZE.x/2 + margin, WINDOW_SIZE.y/2 - height/2));
+            circleAroundBars.setPosition(sf::Vector2f(WINDOW_SIZE.x/2 - circleAroundBars.getRadius(), WINDOW_SIZE.y/2 - circleAroundBars.getRadius()));
 
             m_window.draw(overlay);
-            m_window.draw(left);
-            m_window.draw(right);
-            m_window.draw(circle);
+            m_window.draw(leftBar);
+            m_window.draw(rightBar);
+            m_window.draw(circleAroundBars);
         }
     }
 
