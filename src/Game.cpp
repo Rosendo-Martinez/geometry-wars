@@ -970,69 +970,65 @@ void Game::sRender()
     m_window.display();
 }
 
+/**
+ * System for spawning enemies.
+ */
 void Game::sEnemySpawner()
 {
-    // TODO: code which imp. enemy spawning should go here
-    //         use (m_currentFrame - m_lastEnemySpawnTime) to determine
-    //         how long its has been since the last enemy spawned
-
+    // 1 enemy is spawned after one 'spawn interval' has passed
+    
     if (m_currentFrame - m_lastEnemySpawnTime >= m_enemyConfig.SI) {
         spawnEnemy();
         m_lastEnemySpawnTime = m_currentFrame;
     };
 }
 
+/**
+ * Spawns the player.
+ */
 void Game::spawnPlayer()
 {
-    // TODO: Finish adding all properties of the player with the correct values from the config
-
     auto entity = m_entities.addEntity("player");
 
-    float mx = m_window.getSize().x / 2.0f;
-    float my = m_window.getSize().y / 2.0f;
-
-    entity->cTransform = std::make_shared<CTransform>(Vec2(mx,my), Vec2(3.0f,3.0f), 0.0f);
-
+    entity->cTransform = std::make_shared<CTransform>(Vec2(m_window.getSize().x / 2.0f, m_window.getSize().y / 2.0f), Vec2(3.0f,3.0f), 0.0f);
     entity->cShape = std::make_shared<CShape>(32.0f, 8, sf::Color(10,10,10), sf::Color(255,0,0), 4.0f);
-
     entity->cInput = std::make_shared<CInput>();
-
     entity->cCollision = std::make_shared<CCollision>(m_playerConfig.CR);
-
     entity->cScore = std::make_shared<CScore>(0);
 
     m_player = entity;
-
     m_isNewHighScore = false;
 }
 
-void Game::spawnSmallEnemies(std:: shared_ptr<Entity> entity)
+/**
+ * Spawns 'small' enemies.
+ */
+void Game::spawnSmallEnemies(std:: shared_ptr<Entity> bigEnemy)
 {
-    // - small enemies are worth double points of the original enemy
+    // When a big enemy is killed, it will break up into smaller enemies
 
-    const int n = entity->cShape->circle.getPointCount();
-    const float speed = entity->cTransform->velocity.length();
-    // const float polarRadius = entity->cShape->circle.getPointCount() <= 4 ? entity->cCollision->radius * .70 :  entity->cCollision->radius * (.80 + .1 * (entity->cShape->circle.getPointCount() - 4));
-    for (int i = 0; i < n; i++) 
+    // The number of small enemies to spawn is equal to the number of vertices the big enemy has
+    const int numberOfSmallEnemies = bigEnemy->cShape->circle.getPointCount();
+    const float speed = bigEnemy->cTransform->velocity.length();
+
+    for (int i = 0; i < numberOfSmallEnemies; i++) 
     {
-        const float angle = 360/n * (i) + entity->cTransform->angle;
+        // Each small enemy goes off in the direction of a vertex (starting from the center of big enemy)
+
+        const float angle = 360/numberOfSmallEnemies * (i) + bigEnemy->cTransform->angle;
         Vec2 vel;
         Vec2 pos;
         vel.polar(angle, speed);
-        // pos.polar(angle, polarRadius);
-        // pos += entity->cTransform->pos;
 
-        auto se = m_entities.addEntity("enemy");
+        auto smallEnemy = m_entities.addEntity("enemy");
 
-        se->cTransform = std::make_shared<CTransform>(entity->cTransform->pos, vel, 0);
-
-        se->cCollision = std::make_shared<CCollision>(entity->cCollision->radius/2);
-
-        se->cShape = std::make_shared<CShape>(entity->cShape->circle.getRadius()/2, entity->cShape->circle.getPointCount(), entity->cShape->circle.getFillColor(), entity->cShape->circle.getOutlineColor(), entity->cShape->circle.getOutlineThickness()/2);
-
-        se->cLifespan = std::make_shared<CLifespan>(m_enemyConfig.L);
-
-        se->cScore = std::make_shared<CScore>(m_enemyConfig.SSE);
+        // These smaller enemies spawn where the big enemy died, they are worth double
+        // the points of the big enemy, and have a lifespan
+        smallEnemy->cTransform = std::make_shared<CTransform>(bigEnemy->cTransform->pos, vel, 0);
+        smallEnemy->cCollision = std::make_shared<CCollision>(bigEnemy->cCollision->radius/2);
+        smallEnemy->cShape = std::make_shared<CShape>(bigEnemy->cShape->circle.getRadius()/2, bigEnemy->cShape->circle.getPointCount(), bigEnemy->cShape->circle.getFillColor(), bigEnemy->cShape->circle.getOutlineColor(), bigEnemy->cShape->circle.getOutlineThickness()/2);
+        smallEnemy->cLifespan = std::make_shared<CLifespan>(m_enemyConfig.L);
+        smallEnemy->cScore = std::make_shared<CScore>(m_enemyConfig.SSE);
     }
 }
 
