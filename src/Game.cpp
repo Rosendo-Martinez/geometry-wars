@@ -578,96 +578,87 @@ void Game::sLifespan()
  */
 void Game::sRender()
 {
-    m_window.clear();
+    m_window.clear(); // clear the window
+    const sf::Vector2u WINDOW_SIZE = m_window.getSize();
 
+    // Render start menu scene
     if (m_startMenu)
     {
-        m_window.clear();
-
-        for (auto e : m_entities.getEntities("enemy")) 
+        for (auto e : m_entities.getEntities("enemy")) // Draw enemies
         {
-            e->cShape->circle.setPosition(e->cTransform->pos.x, e->cTransform->pos.y);
+            std::shared_ptr<CTransform> transform = e->cTransform;
+            std::shared_ptr<CShape> shape = e->cShape;
+            std::shared_ptr<CLifespan> lifespan = e->cLifespan;
 
-            e->cTransform->angle += e->cTransform->angularVel;
-            e->cShape->circle.setRotation(e->cTransform->angle);
+            transform->angle += transform->angularVel;
+            shape->circle.setPosition(transform->pos.x, transform->pos.y);
+            shape->circle.setRotation(transform->angle);
 
-            if (e->cLifespan != nullptr)
+            if (lifespan != nullptr)
             {
-                const float lifespanPercent = ((float) e->cLifespan->remaining / (float) e->cLifespan->total);
-                const int alpha = 255 * lifespanPercent;
+                // Enemies with lifespans fade as their lifespan shrinks
 
-                sf::Color fill = sf::Color(e->cShape->circle.getFillColor());
-                sf::Color outline = sf::Color(e->cShape->circle.getOutlineColor());
-                fill.a = alpha;
-                outline.a = alpha;
+                const int MAX_ALPHA = 255;
+                sf::Color updatedFill = shape->circle.getFillColor();
+                sf::Color updatedOutline = shape->circle.getOutlineColor();
 
-                e->cShape->circle.setFillColor(fill);
-                e->cShape->circle.setOutlineColor(outline);
+                // MAX_ALPHA * (<lifespan percentage>)
+                const int alpha = MAX_ALPHA * ((float) lifespan->remaining / (float) lifespan->total);
+
+                updatedFill.a = alpha;
+                updatedOutline.a = alpha;
+
+                shape->circle.setFillColor(updatedFill);
+                shape->circle.setOutlineColor(updatedOutline);
             }
 
-            m_window.draw(e->cShape->circle);
+            m_window.draw(shape->circle);
         }
 
+        // Semi-transparent background (overlayed over enemies in background)
+        const sf::Color overlayBackground(50, 50, 50, 120);
         sf::RectangleShape overlay;
-        overlay.setFillColor(sf::Color(50, 50, 50, 120));
-        overlay.setSize(sf::Vector2f(m_window.getSize().x, m_window.getSize().y));
+        overlay.setFillColor(overlayBackground);
+        overlay.setSize(sf::Vector2f(WINDOW_SIZE.x, WINDOW_SIZE.y));
         m_window.draw(overlay);
 
-        // sf::Text score;
-        // score.setFont(m_font);
-        // score.setString(strs.str());
-        // score.setCharacterSize(30);
-        // score.setColor(sf::Color::Cyan);
-        // score.setStyle(sf::Text::Bold);
-
+        // Main title (game name)
         sf::Text title;
         title.setFont(m_font);
         title.setString("Geometry Wars");
         title.setCharacterSize(50);
         title.setColor(sf::Color::Cyan);
-        // title.setStyle(sf::Text::Bold | sf::Text::Underlined);
-
         title.setOrigin(sf::Vector2f(title.getLocalBounds().left, title.getLocalBounds().top));
-
-        // title.move(sf::Vector2f(-title.getLocalBounds().left, -title.getLocalBounds().top));
-
-        title.setPosition(sf::Vector2f(m_window.getSize().x/2 - title.getLocalBounds().width/2, m_window.getSize().y/2 - title.getLocalBounds().height/2));
-
+        title.setPosition(sf::Vector2f(WINDOW_SIZE.x/2 - title.getLocalBounds().width/2, WINDOW_SIZE.y/2 - title.getLocalBounds().height/2));
         m_window.draw(title);
 
-        const sf::Vector2f lineSize(m_window.getSize().x, 1);
+        // Line under main title
+        const sf::Vector2f lineSize(WINDOW_SIZE.x, 1);
         sf::RectangleShape line(lineSize);
         line.setFillColor(sf::Color::Cyan);
         line.setOrigin(sf::Vector2f(lineSize.x/2, lineSize.y/2));
-        line.setPosition(sf::Vector2f(m_window.getSize().x/2, title.getPosition().y + title.getLocalBounds().height + lineSize.y/2 + 8));
+        line.setPosition(sf::Vector2f(WINDOW_SIZE.x/2, title.getPosition().y + title.getLocalBounds().height + lineSize.y/2 + 8));
         m_window.draw(line);
 
-        sf::Text enterGame;
+        // How to start game instruction
         float margin = 30;
+        sf::Text enterGame;
         enterGame.setFont(m_font);
         enterGame.setString("press enter to play");
         enterGame.setCharacterSize(16);
+        // Make it blink
         enterGame.setColor(sf::Color(255, 255, 255, 255*m_startMenuInstructionAlphaPercent));
         m_startMenuInstructionAlphaPercent -= 0.01;
         if (m_startMenuInstructionAlphaPercent < 0)
         {
             m_startMenuInstructionAlphaPercent = 1;
         }
-        
         enterGame.setOrigin(sf::Vector2f(enterGame.getLocalBounds().left, enterGame.getLocalBounds().top));
-
-        enterGame.setPosition(sf::Vector2f(m_window.getSize().x/2 - enterGame.getLocalBounds().width/2, title.getPosition().y + title.getLocalBounds().height + margin));
-
+        enterGame.setPosition(sf::Vector2f(WINDOW_SIZE.x/2 - enterGame.getLocalBounds().width/2, title.getPosition().y + title.getLocalBounds().height + margin));
         m_window.draw(enterGame);
 
-        // key mappings
-        // W - up
-        // A - left
-        // S - down
-        // D - right
-        // P - Pause/Unpause
-        // Enter - Play/Replay
 
+        // Key mappings guide
         sf::Text up;
         sf::Text left;
         sf::Text down;
