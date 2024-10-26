@@ -581,6 +581,9 @@ void Game::sRender()
     m_window.clear(); // clear the window
     const sf::Vector2u WINDOW_SIZE = m_window.getSize();
 
+    // 3 Scenes: start menu, in-game, and game-over
+    // Only one scene will be rendered
+
     // Render start menu scene
     if (m_startMenu)
     {
