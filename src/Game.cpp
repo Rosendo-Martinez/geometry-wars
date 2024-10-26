@@ -1032,59 +1032,67 @@ void Game::spawnSmallEnemies(std:: shared_ptr<Entity> bigEnemy)
     }
 }
 
-void Game::spawnBullet(std::shared_ptr<Entity> entity, const Vec2 & mousePos)
+/**
+ * Spawns a bullet.
+ */
+void Game::spawnBullet(std::shared_ptr<Entity> player, const Vec2 & mousePos)
 {
+    // Bullet starts off at center of player
+    // It goes towards the direction of the mouse
+
     auto bullet = m_entities.addEntity("bullet");
 
-    Vec2 vel = mousePos - entity->cTransform->pos;
+    Vec2 vel = mousePos - player->cTransform->pos;
     vel.normalize();
     vel *= m_bulletConfig.S;
 
-    bullet->cTransform = std::make_shared<CTransform>(entity->cTransform->pos, vel, 0);
-
+    bullet->cTransform = std::make_shared<CTransform>(player->cTransform->pos, vel, 0);
     bullet->cCollision = std::make_shared<CCollision>(m_bulletConfig.CR);
-
     bullet->cShape = std::make_shared<CShape>(m_bulletConfig.SR, m_bulletConfig.V, sf::Color(m_bulletConfig.FR, m_bulletConfig.FG, m_bulletConfig.FB, 255), sf::Color(m_bulletConfig.OR, m_bulletConfig.OG, m_bulletConfig.OB, 255), m_bulletConfig.OT);
-
     bullet->cLifespan = std::make_shared<CLifespan>(m_bulletConfig.L);
 }
 
+/**
+ * Spawn special weapon (nuke).
+ * 
+ * Spawns special weapon on top of player.
+ */
 void Game::spawnSpecialWeapon(std::shared_ptr<Entity> entity)
 {
+    // Nuke spawns on top of player.
+
     auto nuke = m_entities.addEntity("nuke");
     sf::Color fill = sf::Color(m_nukeConfig.FR, m_nukeConfig.FG, m_nukeConfig.FB);
     sf::Color outline = sf::Color(m_nukeConfig.OR, m_nukeConfig.OG, m_nukeConfig.OB);
 
     nuke->cTransform = std::make_shared<CTransform>(entity->cTransform->pos, Vec2(0,0), 0);
-
     nuke->cShape = std::make_shared<CShape>(m_nukeConfig.ER, m_nukeConfig.V, fill, outline, m_nukeConfig.BR - m_nukeConfig.ER);
-
     nuke->cLifespan = std::make_shared<CLifespan>(m_nukeConfig.L);
 }
 
+/**
+ * Spawns a big enemy.
+ */
 void Game::spawnEnemy()
 {
-    // TODO: make sure the enemy is spawned properly with the m_enemyConfig variables
-    //      enemy must be spawned completely within the bounds of the window
+    auto enemy = m_entities.addEntity("enemy");
 
-    // auto e = m_entities.addEntity("enemy");
-    // e->cTransform = std::make_shared<CTransform>(Vec2(100.0, 100.0), Vec2(0.2,0.2), 0.0);
-    // e->cShape = std::make_shared<CShape>(20.f, 3, sf::Color::Magenta, sf::Color::Red, 5.f);
-    auto entity = m_entities.addEntity("enemy");
-
-    float ex;
-    float ey;
+    // Spawn position
+    float x, y;
 
     if (m_player != nullptr && !m_startMenu)
     {
+        // Enemy can't spawn on top or near the player (just reroll a new random spawn point)
+
         float reroll = true;
         const float noSpawnZoneRadius = m_player->cCollision->radius * 3;
         while (reroll)
         {
-            ex = randFromRange(m_enemyConfig.SR, m_window.getSize().x - m_enemyConfig.SR);
-            ey = randFromRange(m_enemyConfig.SR, m_window.getSize().y - m_enemyConfig.SR);
+            // enemies can't spawn outside or PARTLY outside map, must be fully in
+            x = randFromRange(m_enemyConfig.SR, m_window.getSize().x - m_enemyConfig.SR);
+            y = randFromRange(m_enemyConfig.SR, m_window.getSize().y - m_enemyConfig.SR);
             
-            if (!isOverlap(m_player->cTransform->pos, Vec2(ex,ey), noSpawnZoneRadius, m_enemyConfig.SR))
+            if (!isOverlap(m_player->cTransform->pos, Vec2(x,y), noSpawnZoneRadius, m_enemyConfig.SR))
             {
                 reroll = false;
             }
@@ -1092,29 +1100,24 @@ void Game::spawnEnemy()
     }
     else
     {
-        ex = randFromRange(m_enemyConfig.SR, m_window.getSize().x - m_enemyConfig.SR);
-        ey = randFromRange(m_enemyConfig.SR, m_window.getSize().y - m_enemyConfig.SR);
+        // Player is not spawned, so it safe to spawn anywhere
+
+        // enemies can't spawn outside or PARTLY outside map, must be fully in
+        x = randFromRange(m_enemyConfig.SR, m_window.getSize().x - m_enemyConfig.SR);
+        y = randFromRange(m_enemyConfig.SR, m_window.getSize().y - m_enemyConfig.SR);
     }
 
+    // Random speed, random diagonal direction, and random number of vertices
     const float componentSpeed = std::sqrt(randFromRange(m_enemyConfig.SMIN, m_enemyConfig.SMAX) * 2);
     const int velXSign = std::rand() % 2 == 0 ? 1 : -1;
     const int velYSign = std::rand() % 2 == 0 ? 1 : -1;
     const int shapePoints = randFromRange(m_enemyConfig.VMIN, m_enemyConfig.VMAX);
 
-    entity->cTransform = std::make_shared<CTransform>(Vec2(ex,ey), Vec2(componentSpeed * velXSign, componentSpeed * velYSign), 0.0f);
-
-    entity->cShape = std::make_shared<CShape>(m_enemyConfig.SR, shapePoints, sf::Color(randFromRange(0,255),randFromRange(0,255),randFromRange(0,255)), sf::Color(m_enemyConfig.OR,m_enemyConfig.OG,m_enemyConfig.OB), m_enemyConfig.OT);
-
-    entity->cInput = std::make_shared<CInput>();
-
-    entity->cCollision = std::make_shared<CCollision>(m_enemyConfig.CR);
-
-    entity->cScore = std::make_shared<CScore>(m_enemyConfig.SNE);
+    enemy->cTransform = std::make_shared<CTransform>(Vec2(x,y), Vec2(componentSpeed * velXSign, componentSpeed * velYSign), 0.0f);
+    enemy->cShape = std::make_shared<CShape>(m_enemyConfig.SR, shapePoints, sf::Color(randFromRange(0,255),randFromRange(0,255),randFromRange(0,255)), sf::Color(m_enemyConfig.OR,m_enemyConfig.OG,m_enemyConfig.OB), m_enemyConfig.OT);
+    enemy->cInput = std::make_shared<CInput>();
+    enemy->cCollision = std::make_shared<CCollision>(m_enemyConfig.CR);
+    enemy->cScore = std::make_shared<CScore>(m_enemyConfig.SNE);
 
     m_lastEnemySpawnTime = m_currentFrame;
-}
-
-void Game::setPaused(bool paused)
-{
-    // todo
 }

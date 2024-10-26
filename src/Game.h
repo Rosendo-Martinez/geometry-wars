@@ -39,7 +39,6 @@ private:
     std::shared_ptr<Entity> m_player;
 
     void init();
-    void setPaused(bool paused);
 
     void sMovement();
     void sUserInput();
@@ -51,6 +50,6 @@ private:
     void spawnPlayer();
     void spawnEnemy();
     void spawnSmallEnemies(std:: shared_ptr<Entity> bigEnemy);
-    void spawnBullet(std::shared_ptr<Entity> entity, const Vec2 & mousePos);
+    void spawnBullet(std::shared_ptr<Entity> player, const Vec2 & mousePos);
     void spawnSpecialWeapon(std::shared_ptr<Entity> entity);
 };
