@@ -24,7 +24,7 @@ When an enemy touches the player, the player dies, and the score resets to zero.
 
 ## Game Play
 
-https://github.com/user-attachments/assets/b3688ad6-fd9d-4103-8194-fa072202c9dc
+https://github.com/user-attachments/assets/64a98236-b50e-40e5-89cf-add89580d779
 
 ## Compiling & Running
 
