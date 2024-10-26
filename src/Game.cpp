@@ -723,68 +723,84 @@ void Game::sRender()
         m_window.draw(specialWeapon);
         m_window.draw(pause);
     }
-    else if (m_endGameMenu)
+    else if (m_endGameMenu) // End game (game over) scene
     {
-        for (auto e : m_entities.getEntities("enemy")) 
+        for (auto e : m_entities.getEntities("enemy")) // Draw enemies
         {
-            e->cShape->circle.setPosition(e->cTransform->pos.x, e->cTransform->pos.y);
+            std::shared_ptr<CTransform> transform = e->cTransform;
+            std::shared_ptr<CShape> shape = e->cShape;
+            std::shared_ptr<CLifespan> lifespan = e->cLifespan;
 
-            e->cTransform->angle += e->cTransform->angularVel;
-            e->cShape->circle.setRotation(e->cTransform->angle);
+            transform->angle += transform->angularVel;
+            shape->circle.setPosition(transform->pos.x, transform->pos.y);
+            shape->circle.setRotation(transform->angle);
 
-            if (e->cLifespan != nullptr)
+            if (lifespan != nullptr)
             {
-                const float lifespanPercent = ((float) e->cLifespan->remaining / (float) e->cLifespan->total);
-                const int alpha = 255 * lifespanPercent;
+                // Enemies with lifespans fade as their lifespan shrinks
 
-                sf::Color fill = sf::Color(e->cShape->circle.getFillColor());
-                sf::Color outline = sf::Color(e->cShape->circle.getOutlineColor());
-                fill.a = alpha;
-                outline.a = alpha;
+                const int MAX_ALPHA = 255;
+                sf::Color updatedFill = shape->circle.getFillColor();
+                sf::Color updatedOutline = shape->circle.getOutlineColor();
 
-                e->cShape->circle.setFillColor(fill);
-                e->cShape->circle.setOutlineColor(outline);
+                // MAX_ALPHA * (<lifespan percentage>)
+                const int alpha = MAX_ALPHA * ((float) lifespan->remaining / (float) lifespan->total);
+
+                updatedFill.a = alpha;
+                updatedOutline.a = alpha;
+
+                shape->circle.setFillColor(updatedFill);
+                shape->circle.setOutlineColor(updatedOutline);
             }
 
-            m_window.draw(e->cShape->circle);
+            m_window.draw(shape->circle);
         }
 
+        // Semi-transparent background (overlayed over enemies in background)
+        const sf::Color overlayBackground(50, 50, 50, 120);
         sf::RectangleShape overlay;
-        overlay.setSize(sf::Vector2f(m_window.getSize().x, m_window.getSize().y));
-        overlay.setFillColor(sf::Color(50, 50, 50, 120));
+        overlay.setFillColor(overlayBackground);
+        overlay.setSize(sf::Vector2f(WINDOW_SIZE.x, WINDOW_SIZE.y));
         m_window.draw(overlay);
 
-        std::ostringstream ss;
-        sf::Text highestScore;
+        // Show player previous highest score
+        std::ostringstream scoreTrackSS;
         if (!m_isNewHighScore)
         {
-            ss << "High score:" << m_highScore;
+            // They did not beat it this game
+            scoreTrackSS << "High score:" << m_highScore;
         }
         else
         {
-            ss << "Previous High Score:  " << m_highScore - m_diffNewHighScorePrevHighScore << "  (+" << m_diffNewHighScorePrevHighScore << ")"; 
+            // They beat it, so its now the previous highest score
+            scoreTrackSS << "Previous High Score:  " << m_highScore - m_diffNewHighScorePrevHighScore << "  (+" << m_diffNewHighScorePrevHighScore << ")"; 
         }
-        highestScore.setColor(sf::Color::White);
-        highestScore.setString(ss.str());
-        highestScore.setFont(m_font);
-        highestScore.setCharacterSize(12);
-        highestScore.setOrigin(sf::Vector2f(highestScore.getLocalBounds().left, highestScore.getLocalBounds().top));
-        highestScore.setPosition(sf::Vector2f(10,10));
-        m_window.draw(highestScore);
+        sf::Text scoreTracker;
+        scoreTracker.setColor(sf::Color::White);
+        scoreTracker.setString(scoreTrackSS.str());
+        scoreTracker.setFont(m_font);
+        scoreTracker.setCharacterSize(12);
+        scoreTracker.setOrigin(sf::Vector2f(scoreTracker.getLocalBounds().left, scoreTracker.getLocalBounds().top));
+        scoreTracker.setPosition(sf::Vector2f(10,10));
+        m_window.draw(scoreTracker);
 
+        // How to return to start menu instruction
         sf::Text returnToStartMenu;
         returnToStartMenu.setColor(sf::Color::White);
         returnToStartMenu.setString("Press backspace to go to start menu");
         returnToStartMenu.setFont(m_font);
         returnToStartMenu.setCharacterSize(12);
         returnToStartMenu.setOrigin(sf::Vector2f(returnToStartMenu.getLocalBounds().left, returnToStartMenu.getLocalBounds().top));
-        returnToStartMenu.setPosition(sf::Vector2f(m_window.getSize().x - returnToStartMenu.getLocalBounds().width - 10, 10));
+        returnToStartMenu.setPosition(sf::Vector2f(WINDOW_SIZE.x - returnToStartMenu.getLocalBounds().width - 10, 10));
         m_window.draw(returnToStartMenu);
 
-        std::ostringstream ss2;
+        // Show the player the score they got this game
+        std::ostringstream gameScoreSS;
         sf::Text gameScore;
         if (m_isNewHighScore)
         {
+            // They got new high score, so make it blink
+
             sf::Color cyan(sf::Color::Cyan);
             cyan.a = 255 * m_startMenuInstructionAlphaPercent;
             m_startMenuInstructionAlphaPercent -= 0.02;
@@ -792,36 +808,34 @@ void Game::sRender()
             {
                 m_startMenuInstructionAlphaPercent = 1;
             }
-            ss2 << "High Score: " << m_gameScore;
+            gameScoreSS << "High Score: " << m_gameScore;
             gameScore.setColor(cyan);
         }
         else
         {
-            ss2 << "Score: " << m_gameScore;
+            // They did not get a new high score
+
+            gameScoreSS << "Score: " << m_gameScore;
             gameScore.setColor(sf::Color::Cyan);
         }
-
-        // gameScore.setColor(sf::Color::Cyan);
-        gameScore.setString(ss2.str());
+        gameScore.setString(gameScoreSS.str());
         gameScore.setFont(m_font);
         gameScore.setCharacterSize(50);
         gameScore.setOrigin(sf::Vector2f(gameScore.getLocalBounds().left, gameScore.getLocalBounds().top));
-        // gameScore.setStyle(sf::Text::Underlined);
-        gameScore.setPosition(sf::Vector2f(m_window.getSize().x/2 - gameScore.getLocalBounds().width/2, m_window.getSize().y/2 - gameScore.getLocalBounds().height/2));
+        gameScore.setPosition(sf::Vector2f(WINDOW_SIZE.x/2 - gameScore.getLocalBounds().width/2, WINDOW_SIZE.y/2 - gameScore.getLocalBounds().height/2));
         m_window.draw(gameScore);
 
-        // I want a line that is bigger that the underline. So I should use a line insstead.
-        // Lets have it be 75% of the screen. It will be right under the title.
-        const sf::Vector2f lineSize(m_window.getSize().x, 1);
+        // Line that is drawn under score player got this game
+        const sf::Vector2f lineSize(WINDOW_SIZE.x, 1);
         sf::RectangleShape line(lineSize);
         line.setFillColor(sf::Color::Cyan);
         line.setOrigin(sf::Vector2f(lineSize.x/2, lineSize.y/2));
-        line.setPosition(sf::Vector2f(m_window.getSize().x/2, gameScore.getPosition().y + gameScore.getLocalBounds().height + lineSize.y/2 + 8));
+        line.setPosition(sf::Vector2f(WINDOW_SIZE.x/2, gameScore.getPosition().y + gameScore.getLocalBounds().height + lineSize.y/2 + 8));
         m_window.draw(line);
 
-
-        sf::Text enterGame;
+        // Instructions for how to play again
         float margin = 30;
+        sf::Text enterGame;
         enterGame.setFont(m_font);
         enterGame.setString("press enter to play again");
         enterGame.setCharacterSize(16);
@@ -831,6 +845,8 @@ void Game::sRender()
         }
         else 
         {
+            // Blinks if player did not get a high score
+        
             enterGame.setColor(sf::Color(255, 255, 255, 255*m_startMenuInstructionAlphaPercent));
             m_startMenuInstructionAlphaPercent -= 0.01;
             if (m_startMenuInstructionAlphaPercent < 0)
@@ -838,14 +854,9 @@ void Game::sRender()
                 m_startMenuInstructionAlphaPercent = 1;
             }
         }
-        
         enterGame.setOrigin(sf::Vector2f(enterGame.getLocalBounds().left, enterGame.getLocalBounds().top));
-
-        enterGame.setPosition(sf::Vector2f(m_window.getSize().x/2 - enterGame.getLocalBounds().width/2, gameScore.getPosition().y + gameScore.getLocalBounds().height + margin));
-
+        enterGame.setPosition(sf::Vector2f(WINDOW_SIZE.x/2 - enterGame.getLocalBounds().width/2, gameScore.getPosition().y + gameScore.getLocalBounds().height + margin));
         m_window.draw(enterGame);
-
-
     }
     else // in game
     {
